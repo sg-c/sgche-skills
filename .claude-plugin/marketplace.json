@@ -1,0 +1,24 @@
+{
+  "name": "sgche-skills",
+  "owner": {
+    "name": "Saiguang Che",
+    "email": "stonnyaiqi@gmail.com"
+  },
+  "metadata": {
+    "description": "Saiguang's composable workflow overlays",
+    "version": "0.1.0"
+  },
+  "plugins": [
+    {
+      "name": "sgche",
+      "description": "Composable overlays for any flow: git worktree management, GitHub issue closing, and subagent fan-out. Designed to be combined with other skills (e.g. the ask-matt family) in a single prompt.",
+      "source": "./",
+      "strict": false,
+      "skills": [
+        "./skills/worktree",
+        "./skills/close-issue",
+        "./skills/fan-out"
+      ]
+    }
+  ]
+}
