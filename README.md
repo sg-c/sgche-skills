@@ -6,11 +6,11 @@ All three are **explicit-invoke only** (`disable-model-invocation: true`) so *yo
 
 | Skill | Fills the gap | Typical composition |
 |-------|---------------|---------------------|
-| `sgche:worktree` | Run any branch-based skill in a dedicated worktree instead of the current checkout. | `sgche:worktree` + `/implement #42` |
+| `sgche:worktree` | Run branch-based work in a dedicated worktree, tag every ticket in a batch with it so later sessions never guess, then merge-and-clean-up on request. | `sgche:worktree` + `/to-tickets "<topic>"`, later `sgche:worktree` + `/implement #57` |
 | `sgche:close-issue` | Issues get created but never closed (`/implement` commits; `/to-tickets` won't touch the parent). | `/implement #42` + `sgche:close-issue` |
 | `sgche:fan-out` | No general directive to delegate work to subagents — you had to retype "fan out subagents". | `sgche:fan-out` + `/implement` |
 
-Full loop example: `sgche:worktree` + `sgche:fan-out` + `/implement #42` + `sgche:close-issue`. `sgche:worktree` composes with any branch-based skill (build, review, research, refactor, etc.).
+Full loop example: `sgche:worktree` + `sgche:fan-out` + `/implement #42` + `sgche:close-issue`. `sgche:worktree` is ticket-scoped — it composes with `/to-tickets` and `/implement`, not with ticketless work.
 
 ## Install
 
