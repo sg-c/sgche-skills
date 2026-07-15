@@ -8,7 +8,7 @@ All three are **explicit-invoke only** (`disable-model-invocation: true`) so *yo
 |-------|---------------|---------------------|
 | `sgche:worktree` | Run branch-based work in a dedicated worktree, tag every ticket in a batch with it so later sessions never guess, then merge-and-clean-up on request. | `sgche:worktree` + `/to-tickets "<topic>"`, later `sgche:worktree` + `/implement #57` |
 | `sgche:close-issue` | Issues get created but never closed (`/implement` commits; `/to-tickets` won't touch the parent). | `/implement #42` + `sgche:close-issue` |
-| `sgche:fan-out` | No general directive to delegate work to subagents — you had to retype "fan out subagents". | `sgche:fan-out` + `/implement` |
+| `sgche:fan-out` | No general directive to delegate work to subagents — you had to retype "fan out subagents". Checkpoints unit progress to disk so an interrupted run (quota, context limit, closed session) resumes instead of restarting. | `sgche:fan-out` + `/implement` |
 
 Full loop example: `sgche:worktree` + `sgche:fan-out` + `/implement #42` + `sgche:close-issue`. `sgche:worktree` is ticket-scoped — it composes with `/to-tickets` and `/implement`, not with ticketless work.
 
