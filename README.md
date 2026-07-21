@@ -11,7 +11,7 @@ Composable workflow overlays, published as a single plugin named **`sgche`**. Ea
 | `sgche:fan-out` | No general directive to delegate work to subagents — you had to retype "fan out subagents". Checkpoints unit progress to disk so an interrupted run (quota, context limit, closed session) resumes instead of restarting. | `sgche:fan-out` + `/implement` |
 | `sgche:issue-break-up` | Complex issues stay one giant blob — no split into independently implementable, context-sized subtasks. | `sgche:issue-break-up` on #57, then `/implement` each subtask |
 
-Full loop example: `sgche:worktree` + `sgche:fan-out` + `/implement #42` + `sgche:close-issue`. `sgche:worktree` is ticket-scoped — it composes with `/to-tickets` and `/implement`, not with ticketless work.
+Full loop example: `sgche:issue-break-up` #42 + `sgche:worktree` + `sgche:fan-out` + `/implement` + `sgche:close-issue`. `sgche:worktree` is ticket-scoped — it composes with `/to-tickets` and `/implement`, not with ticketless work.
 
 ## Install
 
