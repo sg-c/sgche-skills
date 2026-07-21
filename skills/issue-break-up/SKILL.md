@@ -22,10 +22,10 @@ If the issue is small (≤3 production files, trivial tests), do **not** use thi
 
 ## Goal
 
-Produce a set of markdown files under `docs/break-up/`:
+Produce a set of markdown files under `docs/break-up/<issue-number>/`:
 
-- One index file: `docs/break-up/<issue-number>-index.md`
-- One subtask file per chunk: `docs/break-up/<issue-number>-<subtask-slug>.md`
+- One index file: `docs/break-up/<issue-number>/index.md`
+- One subtask file per chunk: `docs/break-up/<issue-number>/<task-index>-<subtask-slug>.md`
 
 Each subtask file must contain enough context that a future agent (or you, later) can implement it without re-reading the entire issue or plan.
 
@@ -86,7 +86,7 @@ For each subtask, pick a short kebab-case slug that describes the change.
 
 ### Step 5 — Write subtask files
 
-Create `docs/break-up/<issue-number>-<subtask-slug>.md` for each subtask.
+Create `docs/break-up/<issue-number>/<task-index>-<subtask-slug>.md` for each subtask, where `<task-index>` is the subtask's 1-based order (matches the `Order` column in the index table).
 
 Frontmatter:
 
@@ -145,7 +145,7 @@ Write enough detail that an implementer does not need to re-read the full issue 
 
 ### Step 6 — Write the index file
 
-Create `docs/break-up/<issue-number>-index.md`.
+Create `docs/break-up/<issue-number>/index.md`.
 
 Frontmatter:
 
@@ -167,10 +167,10 @@ Body:
 
 ## Subtasks
 
-| Order | Slug | Title | Files | Blocked by |
-|-------|------|-------|-------|------------|
-| 1 | `<slug>` | `<title>` | `file1.py`, `file2.py` | — |
-| 2 | `<slug>` | `<title>` | `file3.py` | `<slug>` |
+| Order | Slug | Title | Files | Blocked by | Status |
+|-------|------|-------|-------|------------|--------|
+| 1 | `<slug>` | `<title>` | `file1.py`, `file2.py` | — | |
+| 2 | `<slug>` | `<title>` | `file3.py` | `<slug>` | |
 
 ## Entry point
 
@@ -181,14 +181,14 @@ Start with subtask `<first-slug>`.
 Any global context that does not fit in a single subtask.
 ```
 
-The index is the single source of truth for order and dependencies.
+The index is the single source of truth for order and dependencies. `Status` is `done` once a subtask is fully implemented and merged; leave it blank otherwise. When re-running this skill against an issue that already has an index, carry forward existing `done` marks rather than resetting them.
 
 ## Output
 
 After running this skill, the user sees:
 
-- `docs/break-up/<issue-number>-index.md`
-- `docs/break-up/<issue-number>-<subtask-slug>.md` (one per subtask)
+- `docs/break-up/<issue-number>/index.md`
+- `docs/break-up/<issue-number>/<task-index>-<subtask-slug>.md` (one per subtask)
 
 Tell the user:
 
@@ -210,12 +210,12 @@ Do not implement anything unless the user explicitly asks.
 
 Issue #95 (event taxonomy rewrite) might become:
 
-- `docs/break-up/95-index.md`
-- `docs/break-up/95-event-models-and-migration.md` (`models/job.py`, migration)
-- `docs/break-up/95-job-type-registry.md` (`job_types.py`)
-- `docs/break-up/95-progress-reporter-protocol.md` (`services/progress_reporter.py`)
-- `docs/break-up/95-event-streamer.md` (`services/event_streamer.py`)
-- `docs/break-up/95-web-collector-emissions.md` (`workflows/web_collector.py`, `crawl/__init__.py`)
-- `docs/break-up/95-dataset-collector-emissions.md` (`workflows/dataset_collector.py`, `services/archiver.py`)
+- `docs/break-up/95/index.md`
+- `docs/break-up/95/1-event-models-and-migration.md` (`models/job.py`, migration)
+- `docs/break-up/95/2-job-type-registry.md` (`job_types.py`)
+- `docs/break-up/95/3-progress-reporter-protocol.md` (`services/progress_reporter.py`)
+- `docs/break-up/95/4-event-streamer.md` (`services/event_streamer.py`)
+- `docs/break-up/95/5-web-collector-emissions.md` (`workflows/web_collector.py`, `crawl/__init__.py`)
+- `docs/break-up/95/6-dataset-collector-emissions.md` (`workflows/dataset_collector.py`, `services/archiver.py`)
 
 Note how the emissions migration is split by job type to keep each subtask focused.
