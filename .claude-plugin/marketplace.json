@@ -17,7 +17,8 @@
       "skills": [
         "./skills/worktree",
         "./skills/close-issue",
-        "./skills/fan-out"
+        "./skills/fan-out",
+        "./skills/issue-break-up"
       ]
     }
   ]
