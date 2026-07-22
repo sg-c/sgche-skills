@@ -18,7 +18,8 @@
         "./skills/worktree",
         "./skills/close-issue",
         "./skills/fan-out",
-        "./skills/issue-break-up"
+        "./skills/issue-break-up",
+        "./skills/marc-andreessen-persona"
       ]
     }
   ]
