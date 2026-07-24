@@ -5,7 +5,7 @@ disable-model-invocation: true
 ---
 # resolve-tickets
 
-Run `workflow.js` in skill dir via `Workflow` tool. Batch of issues, in order, each get:
+Run `scripts/workflow.js` in skill dir via `Workflow` tool. Batch of issues, in order, each get:
 
 1. **tdd** — `/mattpocock-skills:tdd` against issue.
 2. **review** — `/mattpocock-skills:code-review unstaged` w/ `/sgche:marc-andreessen-persona`, skip if step 1 touch no code files (docs-only issue).
@@ -22,7 +22,7 @@ Run from repo's **default branch**, checked out directly — no worktree, no per
 
 ```
 Workflow({
-  scriptPath: "<this skill's directory>/workflow.js",
+  scriptPath: "<this skill's directory>/scripts/workflow.js",
   args: {
     repoPath: "/abs/path/to/repo",   // must already be checked out on the default branch
     issues: [42, 43, 44]             // also accepts "42,43", "42-44", "42~44", "#42~#44"
@@ -30,7 +30,7 @@ Workflow({
 })
 ```
 
-Resolve `<this skill's directory>` from wherever this SKILL.md loaded from — sits next to `workflow.js`. `repoPath` required, must be absolute: each of four steps fresh subagent process, no shared shell state, working directory must pass explicit rather than inherit from wherever you happen `cd`'d (same reasoning `sgche`'s `close-issues-batch` workflow use for `worktreePath` arg).
+Resolve `<this skill's directory>` from wherever this SKILL.md loaded from — `workflow.js` sits in its `scripts/` subdir. `repoPath` required, must be absolute: each of four steps fresh subagent process, no shared shell state, working directory must pass explicit rather than inherit from wherever you happen `cd`'d (same reasoning `sgche`'s `close-issues-batch` workflow use for `worktreePath` arg).
 
 Workflow run in background; get `<task-notification>` when returns. Report result to user — don't guess before notification lands.
 
@@ -45,7 +45,7 @@ Job when see `pendingQuestion`:
 
 ```
 Workflow({
-  scriptPath: "<...>/workflow.js",
+  scriptPath: "<...>/scripts/workflow.js",
   resumeFromRunId: "<runId from the stopped run>",
   args: { repoPath: "/abs/path/to/repo", issues: [42, 43, 44], clarifications: { 42: "<the user's exact answer>" } }
 })
