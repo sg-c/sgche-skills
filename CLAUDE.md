@@ -22,7 +22,7 @@ disable-model-invocation: true   # only for explicit-invoke-only skills
 ---
 ```
 
-Set `disable-model-invocation: true` when the skill has side effects (commits, closes issues) or overrides voice/tone — those must never self-activate; user invokes explicitly (`/sgche:name`).
+Set `disable-model-invocation: true` when the skill has side effects (commits, closes issues) — those must never self-activate; user invokes explicitly (`/sgche:name`). Voice/tone overlays (e.g. `marc-andreessen-persona`) may self-trigger.
 
 ## Conventions
 
