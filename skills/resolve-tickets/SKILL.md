@@ -59,6 +59,12 @@ Don't paper over `needs-input` stop by picking answer yourself, don't silently s
 
 Every tdd-step prompt opens checking `gh issue view <n> --json state`. Issue already `CLOSED`? Step report `skipped-already-closed` immediately, does nothing else — so re-running same `resolve-tickets` call (with or without `resumeFromRunId`) after crash, quota cutoff, or `blocked`/`close-failed` stop always pick up correctly: issues already closed in earlier partial run skipped, not redone.
 
+## Investigating unrelated-looking failures
+
+The tdd step's prompt tells the subagent: before doing single-test forensics on a failure that looks unrelated to the issue at hand, cheaply rule out "pre-existing" first — `git stash` (`-u` if untracked), rerun the affected test file, `git stash pop`. A ~10s round trip beats minutes of investigation.
+
+(General test-runner tooling guidance, e.g. `rtk` usage, lives in `~/.claude/RTK.md` — global, applies beyond this skill, not duplicated here.)
+
 ## Failure modes
 
 - **Guessing at `needs-input` stop.** Whole point of fresh-subagent-per-step design: nothing downstream commits to unconfirmed choice. Defence: always relay verbatim, always wait for real answer.

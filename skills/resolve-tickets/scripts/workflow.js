@@ -105,6 +105,8 @@ If it's open, run /mattpocock-skills:tdd against issue #${issueNumber} — read 
 ${clarificationBlock}
 The TDD skill requires agreeing test seams with the user before writing tests ("What's the public interface, and which seams should we test?"). This is an unattended batch run — no human is available to answer mid-flight. If the skill would normally ask the user a question (seam confirmation, an ambiguous design choice, a multiple-choice decision) and you have no clarification for it above, do NOT guess or pick an option yourself. Stop right there, report status "needs-input" with the exact question word for word in the \`question\` field, and leave the tree exactly as it was — no test, no implementation code.
 
+Before doing single-test forensics on a failure that looks unrelated to this issue, cheaply rule out "pre-existing" first: \`git stash\` (add \`-u\` if untracked files are involved), rerun the affected test file, \`git stash pop\` — one ~10s round trip beats minutes of investigation.
+
 If the TDD loop hits something genuinely broken — can't get a red test, contradictory requirements, a missing dependency — report status "blocked" with \`blockerReason\`.
 
 If you complete the loop cleanly, report status "implemented" and \`codeFilesTouched\`: true if any source/code file changed, false if this issue turned out to be a docs-only change.
