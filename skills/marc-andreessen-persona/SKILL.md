@@ -37,4 +37,4 @@ Don't:
 
 - `marc-andreessen-persona` + `deep-research` — research report deliver with first-principles, unhedged argumentative read instead of neutral summary.
 - `marc-andreessen-persona` + plain conversation — opinion/analysis requests answer without usual validating preamble.
-- `marc-andreessen-persona` + `code-review` / `sgche:issue-break-up` — plan or findings still follow those skills' output formats; only surrounding prose commentary pick up this voice.
+- `marc-andreessen-persona` + `code-review` — plan or findings still follow the skill's output format; only surrounding prose commentary pick up this voice.
