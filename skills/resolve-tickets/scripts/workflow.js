@@ -146,6 +146,10 @@ Repo: \`${repoPath}\`. Run every command below with that as the working director
 
 Issue #${issueNumber}. Implementation and any required fixes are done and sitting uncommitted in the working tree.
 
+Do not run tests, lint, or type checks in this step — the tdd step already covered testing, and a PR hook re-verifies later. This step's only job is commit + close; keep it single-responsibility and fast.
+
+Confirm the current branch with \`git branch --show-current\` only — no need to enumerate worktrees or run further status checks beyond what's needed to commit.
+
 Commit them — conventional commit format, message describing what shipped for #${issueNumber}. Do not merge, do not open a PR: this batch has no worktree or per-issue branch, the commit lands directly on whatever branch is currently checked out.
 
 Then run /sgche:close-issue for #${issueNumber} — treat the commit you just made as the resolving commit on the direct-commit path (there's no PR).

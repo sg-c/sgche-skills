@@ -10,7 +10,7 @@ Run `scripts/workflow.js` in skill dir via `Workflow` tool. Batch of issues, in 
 1. **tdd** — `/mattpocock-skills:tdd` against issue.
 2. **review** — `/mattpocock-skills:code-review unstaged` w/ `/sgche:marc-andreessen-persona`, skip if step 1 touch no code files (docs-only issue).
 3. **fix** — apply review's hard issues only, skip if review found none.
-4. **commit + close** — conventional-commit changes. Verify resolving commit reachable on default branch (`git branch --contains <sha>`) and issue not already closed (`gh issue view <n> --json state`), then `gh issue comment <n> --body "Resolved by <commit-sha>. <one-line summary of what shipped>."` and `gh issue close <n> --reason completed`. No merge, no PR.
+4. **commit + close** — conventional-commit changes, no test/lint/type-check run here (tdd step already covered it, PR hook re-verifies later — keeps this step single-responsibility and fast). Verify resolving commit reachable on default branch (`git branch --contains <sha>`) and issue not already closed (`gh issue view <n> --json state`), then `gh issue comment <n> --body "Resolved by <commit-sha>. <one-line summary of what shipped>."` and `gh issue close <n> --reason completed`. No merge, no PR.
 
 Each of four steps own `agent()` call — fresh subagent, no memory of prior step, so prompt carries everything needed (issue number, prior report text, etc). Deliberate: keeps long batch from drowning one step in accumulated context.
 
