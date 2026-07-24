@@ -19,7 +19,8 @@
         "./skills/close-issue",
         "./skills/fan-out",
         "./skills/issue-break-up",
-        "./skills/marc-andreessen-persona"
+        "./skills/marc-andreessen-persona",
+        "./skills/resolve-tickets"
       ]
     }
   ]
