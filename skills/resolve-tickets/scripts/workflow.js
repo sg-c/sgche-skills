@@ -107,6 +107,8 @@ The TDD skill requires agreeing test seams with the user before writing tests ("
 
 Before doing single-test forensics on a failure that looks unrelated to this issue, cheaply rule out "pre-existing" first: \`git stash\` (add \`-u\` if untracked files are involved), rerun the affected test file, \`git stash pop\` — one ~10s round trip beats minutes of investigation.
 
+Once red-green loop done, skip full-suite re-run if scope narrow and \`ruff\`/\`ty\` (or repo's lint/type-check equivalent) plus scoped tests already pass — run only files touched by this issue plus files importing the changed symbol, not whole suite. Full suite costs minutes for a batch step that repeats per issue; PR hook re-verifies everything later anyway. Wide-blast-radius change (shared util, public interface many files depend on) — full suite still worth it, use judgement.
+
 If the TDD loop hits something genuinely broken — can't get a red test, contradictory requirements, a missing dependency — report status "blocked" with \`blockerReason\`.
 
 If you complete the loop cleanly, report status "implemented" and \`codeFilesTouched\`: true if any source/code file changed, false if this issue turned out to be a docs-only change.

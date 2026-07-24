@@ -65,6 +65,10 @@ The tdd step's prompt tells the subagent: before doing single-test forensics on 
 
 (General test-runner tooling guidance, e.g. `rtk` usage, lives in `~/.claude/RTK.md` — global, applies beyond this skill, not duplicated here.)
 
+## Test scope in tdd step
+
+Once red-green loop closes, tdd step's prompt skips a full-suite re-run when scope narrow and `ruff`/`ty`/scoped tests already pass — runs only files touched plus files importing the changed symbol, not whole suite. Full suite costs minutes, repeats once per issue in batch; PR hook re-verifies everything later anyway, so this step doesn't need to. Wide-blast-radius change (shared util, public interface many files depend on) — subagent still uses judgement, full suite worth it there.
+
 ## Failure modes
 
 - **Guessing at `needs-input` stop.** Whole point of fresh-subagent-per-step design: nothing downstream commits to unconfirmed choice. Defence: always relay verbatim, always wait for real answer.
