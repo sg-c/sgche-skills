@@ -10,13 +10,13 @@ Run `scripts/workflow.js` in skill dir via `Workflow` tool. Batch of issues, in 
 1. **tdd** — `/mattpocock-skills:tdd` against issue.
 2. **review** — `/mattpocock-skills:code-review unstaged` w/ `/sgche:marc-andreessen-persona`, skip if step 1 touch no code files (docs-only issue).
 3. **fix** — apply review's hard issues only, skip if review found none.
-4. **commit + close** — conventional-commit changes, no test/lint/type-check run here (tdd step already covered it, PR hook re-verifies later — keeps this step single-responsibility and fast). Verify resolving commit reachable on default branch (`git branch --contains <sha>`) and issue not already closed (`gh issue view <n> --json state`), then `gh issue comment <n> --body "Resolved by <commit-sha>. <one-line summary of what shipped>."` and `gh issue close <n> --reason completed`. No merge, no PR.
+4. **commit + close** — conventional-commit changes on whatever branch is currently checked out, no test/lint/type-check run here (tdd step already covered it, PR hook re-verifies later — keeps this step single-responsibility and fast). Verify issue not already closed (`gh issue view <n> --json state`), then `gh issue comment <n> --body "Resolved by <commit-sha>. <one-line summary of what shipped>."` and `gh issue close <n> --reason completed`. No merge, no PR — user manages branch/merge strategy offline afterward.
 
 Each of four steps own `agent()` call — fresh subagent, no memory of prior step, so prompt carries everything needed (issue number, prior report text, etc). Deliberate: keeps long batch from drowning one step in accumulated context.
 
 ## Precondition
 
-Run from repo's **default branch**, checked out directly — no worktree, no per-issue branch. Step 4 close issues on direct-commit path, needs resolving commit already reachable from default branch, no PR/merge involved. Want isolation or shared worktree for batch? Different shape than this skill — set worktree up yourself before invoking.
+Run from whatever branch/worktree already checked out — default branch, feature branch, fix branch, any. Skill doesn't enforce or care which. Commits land directly on current branch, issues close against that commit immediately (no PR/merge step). User handles branch management, merging, and getting the work onto default branch offline, afterward.
 
 ## Invocation
 
@@ -24,13 +24,13 @@ Run from repo's **default branch**, checked out directly — no worktree, no per
 Workflow({
   scriptPath: "<this skill's directory>/scripts/workflow.js",
   args: {
-    repoPath: "/abs/path/to/repo",   // must already be checked out on the default branch
+    repoPath: "/abs/path/to/repo",   // must already be checked out on whichever branch you want the commits on
     issues: [42, 43, 44]             // also accepts "42,43", "42-44", "42~44", "#42~#44"
   }
 })
 ```
 
-Resolve `<this skill's directory>` from wherever this SKILL.md loaded from — `workflow.js` sits in its `scripts/` subdir. `repoPath` required, must be absolute: each of four steps fresh subagent process, no shared shell state, working directory must pass explicit rather than inherit from wherever you happen `cd`'d (same reasoning `sgche`'s `close-issues-batch` workflow use for `worktreePath` arg).
+Resolve `<this skill's directory>` from wherever this SKILL.md loaded from — `workflow.js` sits in its `scripts/` subdir. `repoPath` required, must be absolute: each of four steps fresh subagent process, no shared shell state, working directory must pass explicit rather than inherit from wherever you happen `cd`'d.
 
 Workflow run in background; get `<task-notification>` when returns. Report result to user — don't guess before notification lands.
 
@@ -73,7 +73,7 @@ Once red-green loop closes, tdd step's prompt skips a full-suite re-run when sco
 
 - **Guessing at `needs-input` stop.** Whole point of fresh-subagent-per-step design: nothing downstream commits to unconfirmed choice. Defence: always relay verbatim, always wait for real answer.
 - **Treating `blocked` as retryable without looking.** `blocked` means something actually wrong w/ work (failing loop, unresolved review finding) — re-running blindly just repeats failure. Defence: read `blockerReason`, fix underlying issue or ask user, then resume.
-- **Running off feature branch.** Direct-commit close path silently fails (or worse, closes against commit that never reaches default branch) if not run from it. Defence: check current branch before invoking.
+- **Forgetting issues close against whatever branch is current.** No merge, no PR — if current branch isn't default, closed issues reference a commit not yet on default until user merges it themselves offline. Expected behavior, not a bug — just don't assume "closed" means "shipped to default branch" when run off a feature branch.
 - **Losing `runId`.** Without it, resuming after `needs-input` stop re-runs every step from scratch instead of hitting cache. Defence: hold onto `Workflow` tool result's `runId` until batch fully closes.
 
 ## Composes with

@@ -6,11 +6,10 @@ export const meta = {
   ],
 }
 
-// repoPath must already be checked out on the default branch — no worktree, no per-issue
-// branch. Issues close via the direct-commit path (sgche:close-issue), so that branch must
-// be the default branch: the resolving commit needs to be reachable from it with no PR/merge.
-// repoPath is passed explicitly (not inherited from any shell cwd) because each agent() call
-// is a fresh subagent process — same reasoning as worktreePath in close-issues-batch.js.
+// repoPath must already be checked out on whichever branch/worktree the caller wants the
+// commits on — default branch, feature branch, any. No PR/merge involved: each issue closes
+// against the commit made directly on that branch. repoPath is passed explicitly (not
+// inherited from any shell cwd) because each agent() call is a fresh subagent process.
 
 // args shape: { repoPath: string, issues: number[] | string, clarifications?: Record<number|string, string> }
 // issues accepts: [42, 43] | "42,43" | "42-44" | "42~44" | "#42~#44"
@@ -152,11 +151,9 @@ Issue #${issueNumber}. Implementation and any required fixes are done and sittin
 
 Do not run tests, lint, or type checks in this step — the tdd step already covered testing, and a PR hook re-verifies later. This step's only job is commit + close; keep it single-responsibility and fast.
 
-Confirm the current branch with \`git branch --show-current\` only — no need to enumerate worktrees or run further status checks beyond what's needed to commit.
+Commit them — conventional commit format, message describing what shipped for #${issueNumber}. Do not merge, do not open a PR: the commit lands directly on whatever branch is currently checked out, no worktree or per-issue branch involved. User manages branch/merge strategy offline afterward — not this step's concern.
 
-Commit them — conventional commit format, message describing what shipped for #${issueNumber}. Do not merge, do not open a PR: this batch has no worktree or per-issue branch, the commit lands directly on whatever branch is currently checked out.
-
-Then run /sgche:close-issue for #${issueNumber} — treat the commit you just made as the resolving commit on the direct-commit path (there's no PR).
+Then close the issue: check it's not already closed (\`gh issue view ${issueNumber} --json state -q .state\`), comment with the resolving commit (\`gh issue comment ${issueNumber} --body "Resolved by <commit-sha>. <one-line summary of what shipped>."\`), then \`gh issue close ${issueNumber} --reason completed\`.
 
 Report status "closed" with \`commitSha\` once the issue is closed on GitHub, "close-failed" if the commit landed but the close call itself failed for a transient GitHub-side reason, or "blocked" if something is actually wrong.
 `.trim()
@@ -172,7 +169,7 @@ const issues = normalizeIssues(runArgs?.issues)
 if (!runArgs?.repoPath || !issues.length) {
   throw new Error(
     `resolve-tickets requires args: { repoPath: string, issues: number[] | string, clarifications?: Record<number, string> }.\n` +
-    `repoPath must be an absolute path, already checked out on the default branch.\n` +
+    `repoPath must be an absolute path, already checked out on whichever branch you want the commits on.\n` +
     `issues accepts "1,2,3", "1-3", "1~3", "#1~#3".\n` +
     `Got: ${JSON.stringify(runArgs)}`
   )
