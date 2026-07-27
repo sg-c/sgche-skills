@@ -11,10 +11,22 @@ export const meta = {
 // against the commit made directly on that branch. repoPath is passed explicitly (not
 // inherited from any shell cwd) because each agent() call is a fresh subagent process.
 
-// args shape: { repoPath: string, issues: number[] | string, clarifications?: Record<number|string, string> }
+// args shape: { repoPath: string, issues: number[] | string, clarifications?: Record<number|string, string>, model?: string, effort?: string }
 // issues accepts: [42, 43] | "42,43" | "42-44" | "42~44" | "#42~#44"
 // clarifications answers a question a previous run stopped on, keyed by issue number, e.g.
 // { repoPath: "/abs/path/to/repo", issues: [42, 43], clarifications: { 42: "Test at the HTTP handler seam, not the service." } }
+// model / effort are both optional and independent — either, both, or neither may be set. When
+// present they override the agent's model / reasoning effort on every step; when absent that
+// opt is omitted so the agent inherits the session default.
+
+// Merge optional model/effort into an agent() opts object, adding each key only when the
+// corresponding arg is set (they may be specified independently — one, both, or neither).
+function withOverrides(opts, runArgs) {
+  const merged = { ...opts }
+  if (runArgs?.model != null) merged.model = runArgs.model
+  if (runArgs?.effort != null) merged.effort = runArgs.effort
+  return merged
+}
 
 const TDD_SCHEMA = {
   type: 'object',
@@ -185,7 +197,7 @@ for (const issueNumber of issues) {
 
   const tdd = await agent(
     tddPrompt(issueNumber, runArgs.repoPath, clarificationFor(runArgs?.clarifications, issueNumber)),
-    { label: `tdd-${issueNumber}`, phase: phaseTitle, agentType: 'general-purpose', schema: TDD_SCHEMA }
+    withOverrides({ label: `tdd-${issueNumber}`, phase: phaseTitle, agentType: 'general-purpose', schema: TDD_SCHEMA }, runArgs)
   )
   results.push({ issueNumber, step: 'tdd', result: tdd })
 
@@ -215,7 +227,7 @@ for (const issueNumber of issues) {
   if (tdd.codeFilesTouched) {
     const review = await agent(
       reviewPrompt(issueNumber, runArgs.repoPath),
-      { label: `review-${issueNumber}`, phase: phaseTitle, agentType: 'general-purpose', schema: REVIEW_SCHEMA }
+      withOverrides({ label: `review-${issueNumber}`, phase: phaseTitle, agentType: 'general-purpose', schema: REVIEW_SCHEMA }, runArgs)
     )
     results.push({ issueNumber, step: 'review', result: review })
     if (!review) {
@@ -233,7 +245,7 @@ for (const issueNumber of issues) {
   if (hasHardIssues) {
     const fix = await agent(
       fixPrompt(issueNumber, runArgs.repoPath, reviewReport),
-      { label: `fix-${issueNumber}`, phase: phaseTitle, agentType: 'general-purpose', schema: FIX_SCHEMA }
+      withOverrides({ label: `fix-${issueNumber}`, phase: phaseTitle, agentType: 'general-purpose', schema: FIX_SCHEMA }, runArgs)
     )
     results.push({ issueNumber, step: 'fix', result: fix })
     if (!fix || fix.status !== 'fixed') {
@@ -245,7 +257,7 @@ for (const issueNumber of issues) {
 
   const close = await agent(
     closePrompt(issueNumber, runArgs.repoPath),
-    { label: `commit-close-${issueNumber}`, phase: phaseTitle, agentType: 'general-purpose', schema: CLOSE_SCHEMA }
+    withOverrides({ label: `commit-close-${issueNumber}`, phase: phaseTitle, agentType: 'general-purpose', schema: CLOSE_SCHEMA }, runArgs)
   )
   results.push({ issueNumber, step: 'commit-close', result: close })
 

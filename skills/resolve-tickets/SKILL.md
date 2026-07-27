@@ -25,10 +25,14 @@ Workflow({
   scriptPath: "<this skill's directory>/scripts/workflow.js",
   args: {
     repoPath: "/abs/path/to/repo",   // must already be checked out on whichever branch you want the commits on
-    issues: [42, 43, 44]             // also accepts "42,43", "42-44", "42~44", "#42~#44"
+    issues: [42, 43, 44],            // also accepts "42,43", "42-44", "42~44", "#42~#44"
+    model: "opus",                   // optional — override agent model on every step
+    effort: "high"                   // optional — override agent reasoning effort on every step
   }
 })
 ```
+
+`model` and `effort` both optional and independent — either, both, or neither. When set, override the corresponding `agent()` opt on all four steps; when absent, that opt is omitted so the agent inherits the session default.
 
 Resolve `<this skill's directory>` from wherever this SKILL.md loaded from — `workflow.js` sits in its `scripts/` subdir. `repoPath` required, must be absolute: each of four steps fresh subagent process, no shared shell state, working directory must pass explicit rather than inherit from wherever you happen `cd`'d.
 
