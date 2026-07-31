@@ -255,9 +255,11 @@ for (const issueNumber of issues) {
     }
   }
 
+  // commit+close is mechanical (commit message, gh comment, gh close) — pinned to sonnet
+  // regardless of runArgs.model; a bigger model buys nothing here.
   const close = await agent(
     closePrompt(issueNumber, runArgs.repoPath),
-    withOverrides({ label: `commit-close-${issueNumber}`, phase: phaseTitle, agentType: 'general-purpose', schema: CLOSE_SCHEMA }, runArgs)
+    { ...withOverrides({ label: `commit-close-${issueNumber}`, phase: phaseTitle, agentType: 'general-purpose', schema: CLOSE_SCHEMA }, runArgs), model: 'sonnet' }
   )
   results.push({ issueNumber, step: 'commit-close', result: close })
 

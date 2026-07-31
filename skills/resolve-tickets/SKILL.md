@@ -34,6 +34,8 @@ Workflow({
 
 `model` and `effort` both optional and independent — either, both, or neither. When set, override the corresponding `agent()` opt on all four steps; when absent, that opt is omitted so the agent inherits the session default.
 
+Exception: commit-close step always run `model: "sonnet"`, ignore `args.model`. Step mechanical (commit message, `gh` comment, `gh` close) — bigger model buy nothing. `effort` still apply.
+
 Resolve `<this skill's directory>` from wherever this SKILL.md loaded from — `workflow.js` sits in its `scripts/` subdir. `repoPath` required, must be absolute: each of four steps fresh subagent process, no shared shell state, working directory must pass explicit rather than inherit from wherever you happen `cd`'d.
 
 Workflow run in background; get `<task-notification>` when returns. Report result to user — don't guess before notification lands.
