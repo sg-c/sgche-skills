@@ -18,7 +18,7 @@ Each step own `agent()` call — fresh subagent, no memory of prior step, so pro
 
 ## Why worktrees
 
-Parallel issues can't share one working tree — tdd leaves changes uncommitted, so two concurrent issues would clobber each other's diff and each other's review. Each issue gets `<repoPath>-resolve-tickets/issue-<n>` on branch `resolve-tickets/issue-<n>`, branched from base-branch HEAD at the moment its level starts. So a level-2 issue branches from a HEAD that already contains its level-1 blockers' merges — dependency semantics fall out of the level ordering for free.
+Parallel issues can't share one working tree — tdd leaves changes uncommitted, so two concurrent issues would clobber each other's diff and each other's review. Each issue gets `<repoPath>/.claude/worktrees/issue-<n>` on branch `resolve-tickets/issue-<n>`, branched from base-branch HEAD at the moment its level starts. So a level-2 issue branches from a HEAD that already contains its level-1 blockers' merges — dependency semantics fall out of the level ordering for free.
 
 Merging is serialized (one agent per level, issues in order) because every branch in a level merges into the same base branch in the shared checkout. Merge, never rebase — rebase rewrites the sha that gets reported on the issue.
 

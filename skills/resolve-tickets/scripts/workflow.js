@@ -187,11 +187,14 @@ Report one node per issue in the batch, every one of ${issues.map(n => `#${n}`).
 
 function worktreeSetupBlock(issueNumber, repoPath, worktree, branch) {
   return `
-This issue gets its own git worktree so it can run in parallel with other issues in the batch. Set it up before doing any work:
+This issue gets its own git worktree so it can run in parallel with other issues in the batch, under \`${repoPath}/.claude/worktrees/\`. Set it up before doing any work:
 
 \`\`\`
+mkdir -p ${repoPath}/.claude/worktrees
 git -C ${repoPath} worktree add ${worktree} -b ${branch} HEAD
 \`\`\`
+
+If \`mkdir\` fails (permissions, path collision with an existing file, etc.), report status "blocked" with the failure in \`blockerReason\` and stop — do not attempt \`git worktree add\` without it.
 
 If that worktree or branch already exists (a previous run of this batch created it), reuse it instead of recreating it — do not delete it, and do not redo work that is already committed on ${branch}. Check with \`git -C ${repoPath} worktree list\` and \`git -C ${worktree} log --oneline HEAD ^$(git -C ${repoPath} rev-parse HEAD)\` first. If that shows one or more commits and \`git -C ${worktree} status --short\` is clean, report status "already-committed" with \`commitSha\` set to \`git -C ${worktree} rev-parse HEAD\` and stop — a later Integrate step will merge and close it.
 
@@ -309,7 +312,7 @@ if (!runArgs?.repoPath || !issues.length) {
 }
 
 const repoPath = runArgs.repoPath.replace(/\/+$/, '')
-const worktreeFor = n => `${repoPath}-resolve-tickets/issue-${n}`
+const worktreeFor = n => `${repoPath}/.claude/worktrees/issue-${n}`
 const branchFor = n => `resolve-tickets/issue-${n}`
 
 const inBatch = new Set(issues)
