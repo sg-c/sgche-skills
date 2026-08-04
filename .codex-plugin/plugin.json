@@ -1,6 +1,6 @@
 {
   "name": "sgche",
-  "version": "0.1.0",
+  "version": "0.1.0+codex.20260804151636",
   "description": "Composable workflow overlays for batch GitHub issue resolution and blunt first-principles review.",
   "author": {
     "name": "Saiguang Che",
