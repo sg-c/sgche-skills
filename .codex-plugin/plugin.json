@@ -30,7 +30,8 @@
     "websiteURL": "https://github.com/sg-c/sgche-skills",
     "defaultPrompt": [
       "Use sgche:marc-andreessen-persona on this analysis.",
-      "Use sgche:resolve-tickets for issues 42-45."
+      "Use sgche:resolve-tickets for issues 42-45.",
+      "Use sgche:resolve-tickets-optim to close issues 42-45 efficiently."
     ],
     "brandColor": "#2563EB"
   }

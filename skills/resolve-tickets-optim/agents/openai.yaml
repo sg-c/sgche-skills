@@ -1,0 +1,4 @@
+interface:
+  display_name: "Resolve Tickets Optimized"
+  short_description: "Fast batch GitHub issue resolution"
+  default_prompt: "Use $resolve-tickets-optim to close issues 42-45 efficiently."
