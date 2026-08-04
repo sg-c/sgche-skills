@@ -1,0 +1,37 @@
+{
+  "name": "sgche",
+  "version": "0.1.0",
+  "description": "Composable workflow overlays for batch GitHub issue resolution and blunt first-principles review.",
+  "author": {
+    "name": "Saiguang Che",
+    "email": "stonnyaiqi@gmail.com",
+    "url": "https://github.com/sg-c"
+  },
+  "homepage": "https://github.com/sg-c/sgche-skills",
+  "repository": "https://github.com/sg-c/sgche-skills",
+  "license": "MIT",
+  "keywords": [
+    "skills",
+    "github",
+    "tickets",
+    "persona",
+    "workflow"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "sgche",
+    "shortDescription": "Composable personal workflow overlays.",
+    "longDescription": "Composable overlays for any flow: batch GitHub issue resolution and a blunt first-principles review persona.",
+    "developerName": "Saiguang Che",
+    "category": "Productivity",
+    "capabilities": [
+      "Write"
+    ],
+    "websiteURL": "https://github.com/sg-c/sgche-skills",
+    "defaultPrompt": [
+      "Use sgche:marc-andreessen-persona on this analysis.",
+      "Use sgche:resolve-tickets for issues 42-45."
+    ],
+    "brandColor": "#2563EB"
+  }
+}

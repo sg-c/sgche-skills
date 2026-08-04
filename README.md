@@ -2,7 +2,7 @@
 
 Composable workflow overlays, published as a single plugin named **`sgche`**. Each skill is a thin, generic overlay meant to be **combined** with other skills (e.g. the `ask-matt` family) in one prompt — composition, not inheritance. None of them modify the skills they compose with.
 
-`marc-andreessen-persona` and `resolve-tickets` are **explicit-invoke only** (`disable-model-invocation: true`) so *you* control when they apply — they have side effects (committing) or a strong voice override, so they should never fire on their own.
+`marc-andreessen-persona` and `resolve-tickets` are intended to be **explicit-invoke only** so *you* control when they apply — they have side effects (committing) or a strong voice override, so they should never fire on their own.
 
 | Skill | Fills the gap | Typical composition |
 |-------|---------------|---------------------|
@@ -13,6 +13,8 @@ Composable workflow overlays, published as a single plugin named **`sgche`**. Ea
 
 ## Install
 
+### Claude Code
+
 ```
 /plugin marketplace add ~/Documents/src/github-proj/sgche-skills
 /plugin install sgche@sgche-skills
@@ -21,10 +23,20 @@ Composable workflow overlays, published as a single plugin named **`sgche`**. Ea
 To publish and install from GitHub instead, push this directory to `sg-c/sgche-skills`, then
 `/plugin marketplace add sg-c/sgche-skills`.
 
+### Codex
+
+After pushing this repo, install it as a Codex plugin marketplace:
+
+```
+codex plugin marketplace add sg-c/sgche-skills
+codex plugin add sgche@sgche-skills
+```
+
 ## Layout
 
 ```
-.claude-plugin/marketplace.json   # declares the `sgche` plugin
+.claude-plugin/marketplace.json   # declares the `sgche` plugin for Claude Code
+.codex-plugin/plugin.json         # declares the `sgche` plugin for Codex
 skills/marc-andreessen-persona/SKILL.md
 skills/resolve-tickets/SKILL.md
 skills/resolve-tickets/workflow.js

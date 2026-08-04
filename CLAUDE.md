@@ -1,16 +1,17 @@
 # sgche-skills
 
-Plugin repo, single plugin `sgche` — composable Claude Code skill overlays. See README.md for the skill table and install steps.
+Plugin repo, single plugin `sgche` — composable skill overlays for Claude Code and Codex. See README.md for the skill table and install steps.
 
 ## Layout
 
 ```
-.claude-plugin/marketplace.json   # declares plugin `sgche`, lists skill dirs
+.claude-plugin/marketplace.json   # declares plugin `sgche` for Claude Code, lists skill dirs
+.codex-plugin/plugin.json         # declares plugin `sgche` for Codex
 skills/<skill-name>/SKILL.md      # required, one per skill
 skills/<skill-name>/scripts/      # optional — e.g. resolve-tickets/scripts/workflow.js
 ```
 
-Adding a skill: create `skills/<name>/SKILL.md`, then add its path to `marketplace.json`'s `plugins[0].skills` array.
+Adding a skill: create `skills/<name>/SKILL.md`, then add its path to `.claude-plugin/marketplace.json`'s `plugins[0].skills` array. Codex loads every skill under `skills/` through `.codex-plugin/plugin.json`.
 
 ## SKILL.md frontmatter
 
@@ -18,11 +19,12 @@ Adding a skill: create `skills/<name>/SKILL.md`, then add its path to `marketpla
 ---
 name: skill-name
 description: long — states what it does AND when it should trigger (or not)
-disable-model-invocation: true   # only for explicit-invoke-only skills
+# Avoid `disable-model-invocation: true`; Codex plugin validation rejects it.
+# Put explicit-invoke-only constraints in the description and body instead.
 ---
 ```
 
-Set `disable-model-invocation: true` when the skill has side effects (commits, closes issues) — those must never self-activate; user invokes explicitly (`/sgche:name`). Voice/tone overlays (e.g. `marc-andreessen-persona`) may self-trigger.
+When a skill has side effects (commits, closes issues), state in both the description and body that it must never self-activate; user invokes explicitly (`/sgche:name`). Voice/tone overlays (e.g. `marc-andreessen-persona`) may self-trigger.
 
 ## Conventions
 

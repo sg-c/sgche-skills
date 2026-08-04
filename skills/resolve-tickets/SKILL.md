@@ -1,11 +1,12 @@
 ---
 name: resolve-tickets
-description: Batch-close a list of GitHub issues — a planning pass reads each issue's blocked-by/blocking links to build a dependency DAG, then independent issues run in parallel (one git worktree each) while dependent ones wait for their blockers to merge. Per issue - TDD implementation, optional code review under the marc-andreessen-persona, optional fix pass, commit; then a serialized per-level step merges each branch into the base branch and closes the issue. Every step runs in its own fresh subagent, resumable (already-closed issues are skipped automatically). Explicit invoke only — trigger via /sgche:resolve-tickets or when the user asks to work through, burn down, or close out a batch/list of GitHub issues end to end without merging or opening PRs.
-disable-model-invocation: true
+description: Batch-close a list of GitHub issues — a planning pass reads each issue's blocked-by/blocking links to build a dependency DAG, then independent issues run in parallel (one git worktree each) while dependent ones wait for their blockers to merge. Per issue - TDD implementation, optional code review under the marc-andreessen-persona, optional fix pass, commit; then a serialized per-level step merges each branch into the base branch and closes the issue. Every step runs in its own fresh subagent, resumable (already-closed issues are skipped automatically). Use only when the user explicitly invokes /sgche:resolve-tickets or asks to work through, burn down, or close out a batch/list of GitHub issues end to end without merging or opening PRs.
 ---
 # resolve-tickets
 
 Run `scripts/workflow.js` in skill dir via `Workflow` tool.
+
+Do not invoke this skill automatically. It has side effects: it creates worktrees, commits, merges, comments on GitHub issues, and closes issues. Use it only when the user explicitly invokes `/sgche:resolve-tickets` or asks to close out a batch/list of GitHub issues end to end.
 
 ## Shape
 
