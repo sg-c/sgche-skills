@@ -13,6 +13,8 @@ claude-skills/<skill-name>/       # Claude-only skills
 
 Codex loads every skill under `skills/` through `.codex-plugin/plugin.json`; keep only Codex and shared skills there. Keep Claude-only skills under `claude-skills/` and list them in `.claude-plugin/marketplace.json`. Add shared skills to both locations: their files remain in `skills/`, and their paths are also listed in the Claude marketplace.
 
+When changing a skill, bump the corresponding plugin version: update `version` in `.codex-plugin/plugin.json` for Codex/shared skills, and/or `metadata.version` in `.claude-plugin/marketplace.json` for Claude/shared skills.
+
 ## SKILL.md frontmatter
 
 ```yaml

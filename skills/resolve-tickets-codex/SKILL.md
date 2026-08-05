@@ -39,7 +39,7 @@ Use focused, batched reads and cohesive patches. Do not repeat successful comman
 After every runnable ticket in a level has a validated commit, integrate serially in the root agent from `repoPath`, preserving the selected target branch:
 
 1. Merge each issue branch with `git merge --no-edit` in deterministic issue-number order.
-2. On a merge conflict, abort that merge, leave its branch and worktree intact, report `merge-conflict`, and continue the remaining entries. Never force-remove a worktree or branch.
+2. On a merge conflict, abort that merge. Use `followup_task` to send the issue's idle implementation agent to resolve the conflict in its assigned worktree: update its issue branch with the current target branch, resolve only the resulting conflicts, run affected validation, and commit the resolution with a conventional commit. The agent must report the commit SHA, files resolved, and validation. The root agent then retries that issue's merge. If the agent reports a non-code blocker, record `merge-conflict-blocked`, preserve the branch and worktree, and continue the remaining entries. Never force-remove a worktree or branch. Do not ask the user to resolve code-level merge conflicts.
 3. For a successful merge, confirm the issue is still open, comment `Resolved by <sha>. <summary>.`, then close it with `gh issue close <n> --reason completed`.
 4. Only after a successful merge and close, remove that worktree normally and delete its branch. Preserve failed integration artifacts for inspection.
 
@@ -55,6 +55,6 @@ Return exactly `{ closed, levels, pendingQuestions, unresolved, results }`.
 - `unresolved`: every requested issue that did not close.
 - `results`: per-step records, including planning, implementation, review, fix, commit, integration, skips, commit SHAs, validation, blockers, and preserved worktree paths.
 
-On interruption, rerun the same request. Check issue state first; closed issues return `skipped-already-closed`. Reuse existing worktrees rather than recreating them. A clean issue worktree with commits ahead of the target branch returns `already-committed` and proceeds to integration. Leave blocked and merge-conflicted worktrees intact. Do not force-remove worktrees or branches. Do not push or open a pull request unless the user explicitly asks.
+On interruption, rerun the same request. Check issue state first; closed issues return `skipped-already-closed`. Reuse existing worktrees rather than recreating them. A clean issue worktree with commits ahead of the target branch returns `already-committed` and proceeds to integration. Leave blocked and `merge-conflict-blocked` worktrees intact. Do not force-remove worktrees or branches. Do not push or open a pull request unless the user explicitly asks.
 
-Do not guess at `needs-input`, retry a `blocked` step without addressing its reported cause, or assume the DAG detects unrecorded code overlap. A merge conflict preserves the issue branch and worktree; resolve it manually or in a later explicit run.
+Do not guess at `needs-input`, retry a `blocked` step without addressing its reported cause, or assume the DAG detects unrecorded code overlap. A merge-conflict recovery preserves the issue branch and worktree until its implementation agent has resolved, validated, and committed the conflict; a `merge-conflict-blocked` result preserves them for a later explicit run.
