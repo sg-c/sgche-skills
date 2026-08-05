@@ -1,0 +1,4 @@
+interface:
+  display_name: "Resolve Tickets (Codex)"
+  short_description: "Fast parallel GitHub issue resolution"
+  default_prompt: "Use $resolve-tickets-codex to close GitHub issues 42-45 efficiently."

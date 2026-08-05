@@ -11,13 +11,13 @@
   "plugins": [
     {
       "name": "sgche",
-      "description": "Composable overlays for any flow: batch GitHub issue resolution and a review persona. Designed to be combined with other skills (e.g. the ask-matt family) in a single prompt.",
+      "description": "Claude Code workflows for batch GitHub issue resolution plus a review persona. Designed to be combined with other skills (e.g. the ask-matt family) in a single prompt.",
       "source": "./",
       "strict": false,
       "skills": [
         "./skills/marc-andreessen-persona",
-        "./skills/resolve-tickets",
-        "./skills/resolve-tickets-optim"
+        "./claude-skills/resolve-tickets-optim",
+        "./claude-skills/resolve-tickets"
       ]
     }
   ]
