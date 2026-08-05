@@ -1,0 +1,4 @@
+interface:
+  display_name: "Prepare Architecture Improvement"
+  short_description: "Review architecture and prepare a focused plan."
+  default_prompt: "Use $prep-arch-improvement to prepare a reviewed plan for this repository."

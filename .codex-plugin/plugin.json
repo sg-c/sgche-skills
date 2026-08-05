@@ -1,7 +1,7 @@
 {
   "name": "sgche",
-  "version": "0.1.2",
-  "description": "Codex-native ticket resolution and blunt first-principles review.",
+  "version": "0.1.4",
+  "description": "Codex-native ticket resolution, architecture planning, and blunt first-principles review.",
   "author": {
     "name": "Saiguang Che",
     "email": "stonnyaiqi@gmail.com",
@@ -15,13 +15,14 @@
     "github",
     "tickets",
     "persona",
-    "workflow"
+    "workflow",
+    "architecture"
   ],
   "skills": "./skills/",
   "interface": {
     "displayName": "sgche",
     "shortDescription": "Composable personal workflow overlays.",
-    "longDescription": "Codex-native batch ticket resolution and a blunt first-principles review persona.",
+    "longDescription": "Codex-native batch ticket resolution, architecture-improvement planning, and a blunt first-principles review persona.",
     "developerName": "Saiguang Che",
     "category": "Productivity",
     "capabilities": [
@@ -30,7 +31,8 @@
     "websiteURL": "https://github.com/sg-c/sgche-skills",
     "defaultPrompt": [
       "Use sgche:marc-andreessen-persona on this analysis.",
-      "Use sgche:resolve-tickets-codex to close issues 42-45 efficiently."
+      "Use sgche:resolve-tickets-codex to close issues 42-45 efficiently.",
+      "Use sgche:prep-arch-improvement to prepare a reviewed plan for this repository."
     ],
     "brandColor": "#2563EB"
   }
