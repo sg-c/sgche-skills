@@ -28,7 +28,7 @@ Give each reviewer absolute paths, pass number, relevant sources, and read-only 
 
 Cover correctness, consistency, clarity, integrity and traceability, coverage, completeness, feasibility, scope, sequencing, dependencies, verification, acceptance criteria, risks, migration, compatibility, rollback, and implementability without rediscovering decisions.
 
-Require prioritized findings with severity, dimension, exact plan location, evidence, impact, and correction. Also require coverage notes for every dimension, human decisions, inaccessible evidence, and residual risks. Separate defects from preferences and irreducible ambiguity.
+Require prioritized, actionable findings only: shortcomings, needed updates, and concrete improvements. For each finding, provide severity, dimension, exact plan location, evidence, impact, and correction. Do not report dimensions that are already adequate or neutral. Include human decisions, inaccessible evidence, and residual risks only when they expose an unresolved problem. Separate defects from preferences and irreducible ambiguity.
 
 Retry a failed or unusable review once with a fresh agent using the same model and effort. If retry fails, stop and report it without undoing commits.
 
@@ -46,4 +46,4 @@ Never roll back completed commits after a pause or failure.
 
 ## Report
 
-Report plan path, branch, baseline hash and whether pre-existing, each review hash or `no changes`, per-pass disposition counts, human decisions, access limits, residual risks, and unresolved issues. Do not push without a separate request.
+Report the plan path, branch, baseline hash and whether pre-existing, each review hash or `no changes`, and per-pass disposition counts. Include human decisions, access limits, residual risks, and unresolved issues only when they require follow-up. Do not report already-adequate or neutral dimensions. Do not push without a separate request.
