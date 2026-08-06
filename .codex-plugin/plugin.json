@@ -1,7 +1,7 @@
 {
   "name": "sgche",
-  "version": "0.1.4",
-  "description": "Codex-native ticket resolution, architecture planning, and blunt first-principles review.",
+  "version": "0.1.5",
+  "description": "Codex-native ticket resolution, architecture planning, plan review, and blunt first-principles analysis.",
   "author": {
     "name": "Saiguang Che",
     "email": "stonnyaiqi@gmail.com",
@@ -16,13 +16,14 @@
     "tickets",
     "persona",
     "workflow",
-    "architecture"
+    "architecture",
+    "plans"
   ],
   "skills": "./skills/",
   "interface": {
     "displayName": "sgche",
     "shortDescription": "Composable personal workflow overlays.",
-    "longDescription": "Codex-native batch ticket resolution, architecture-improvement planning, and a blunt first-principles review persona.",
+    "longDescription": "Codex-native batch ticket resolution, architecture-improvement planning, two-pass plan review, and a blunt first-principles analysis persona.",
     "developerName": "Saiguang Che",
     "category": "Productivity",
     "capabilities": [
@@ -32,7 +33,8 @@
     "defaultPrompt": [
       "Use sgche:marc-andreessen-persona on this analysis.",
       "Use sgche:resolve-tickets-codex to close issues 42-45 efficiently.",
-      "Use sgche:prep-arch-improvement to prepare a reviewed plan for this repository."
+      "Use sgche:prep-arch-improvement to prepare a reviewed plan for this repository.",
+      "Use sgche:plan-reviewer to review and revise this committed implementation plan twice."
     ],
     "brandColor": "#2563EB"
   }
