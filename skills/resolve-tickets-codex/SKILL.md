@@ -1,60 +1,60 @@
 ---
 name: resolve-tickets-codex
-description: "Batch-close GitHub issues through Codex's native collaboration workflow: dependency-aware parallel worktrees, focused TDD, review, conventional commits, serialized merges, GitHub comments, and issue closure. Use only when the user explicitly invokes $resolve-tickets-codex or asks to burn down a batch/list of GitHub issues end to end in Codex; it creates worktrees, commits, merges, comments, and closes issues."
+description: "Batch-close GitHub issues in Codex: dependency-aware worktrees, mandatory TDD, review, conventional commits, serialized merges, comments, and closure. Use only when the user explicitly invokes $resolve-tickets-codex or requests end-to-end resolution of a batch/list of GitHub issues; it creates worktrees, commits, merges, comments, and closes issues."
 ---
 
 # Resolve Tickets — Codex
 
-Run this workflow only on the user's explicit request. It has side effects: creating worktrees, committing, merging, commenting on GitHub issues, and closing them. Do not use Claude's `Workflow` runtime or its `agent()`/`parallel()` APIs; they are unavailable in Codex.
+Run only on explicit user request. This workflow creates worktrees, commits, merges, GitHub comments, and closes issues. Do not use Claude `Workflow`, `agent()`, or `parallel()` APIs.
 
-Act as the orchestrator. Use Codex-native collaboration tools directly (never through `functions.exec`): `spawn_agent` for independent, bounded work, `followup_task` to continue an idle implementation agent after review, and `send_message` only for non-blocking clarification or status. Keep orchestration, integration, and all GitHub state changes in the root agent.
+Root agent orchestrates and owns integration and all GitHub state changes. Use Codex collaboration tools directly: `spawn_agent` for bounded independent work, `followup_task` for idle implementation agents, and `send_message` only for non-blocking status or clarification.
 
-Every child prompt must include its absolute worktree path, issue number, and relevant prior report. Use `$mattpocock-skills:tdd` for implementation. Use `$mattpocock-skills:code-review` for review of an unstaged diff, composed with `$sgche:marc-andreessen-persona`; do not replace either with an ad hoc review.
+Every child prompt includes absolute worktree path, issue number, and relevant prior report. Every implementation prompt explicitly invokes `$mattpocock-skills:tdd` and requires compliance throughout; an orchestrator-level TDD reference is insufficient. Review invokes `$mattpocock-skills:code-review`, composed with `$sgche:marc-andreessen-persona`; never replace either skill with an ad hoc equivalent.
 
-## Inputs and preflight
+## Preflight
 
-Require an absolute `repoPath` and a non-empty issue list. Accept comma lists and inclusive ranges such as `42,43`, `42-44`, `42~44`, and `#42~#44`. Before changing anything, from `repoPath`:
+Require absolute `repoPath` and non-empty issue list. Accept `42,43`, `42-44`, `42~44`, and `#42~#44`. Before changes, from `repoPath`:
 
-1. Confirm the current branch, worktree, and `git status --short`; never assume the default branch.
-2. Verify `gh` authentication and that every requested issue is reachable.
-3. Read every issue body, comments, state, and native parent/sub-issue links. Batch independent `gh` reads in one CLI call where practical.
-4. Build a DAG using only explicit `blocked by`, `depends on`, `requires`, `after`, reverse `blocks`, and parent/sub-issue relationships. Do not infer dependencies from issue order or overlapping files. Record in-batch prerequisites and open external blockers separately; fail fast on omitted nodes or cycles.
+1. Confirm branch, worktree, and `git status --short`; never assume default branch.
+2. Verify `gh` auth and every requested issue is reachable.
+3. Read bodies, comments, states, and native parent/sub-issue links; batch independent `gh` reads where practical.
+4. Build a DAG only from explicit `blocked by`, `depends on`, `requires`, `after`, reverse `blocks`, and parent/sub-issue links. Record in-batch prerequisites and open external blockers. Fail on omitted nodes or cycles; never infer dependencies from order or file overlap.
 
-State the planned dependency levels and any external blockers before creating worktrees. Skip already closed issues. A blocked or failed ticket blocks all descendants; unrelated tickets may continue.
+Report dependency levels and external blockers before worktrees. Skip closed issues. Blocked or failed tickets block descendants; unrelated tickets continue.
 
 ## Per-level workflow
 
-Process a DAG level only after its prerequisite levels have merged successfully. Worktrees prevent concurrent agents from modifying the same checkout.
+Run a level only after all prerequisites merge. Worktrees isolate concurrent changes.
 
-1. In the root agent, create or reuse one worktree per runnable issue at `<repoPath>/.claude/worktrees/issue-<n>` on `resolve-tickets-codex/issue-<n>`. Branch from the current target branch HEAD immediately before that level. Reuse a clean worktree whose branch is already ahead; do not overwrite dirty work. Treat the managed `.claude/worktrees` directory as workflow state, not issue code.
-2. Spawn up to the available agent slots minus the root agent. Give each implementation agent exactly one issue and its absolute worktree path. Start another only when a slot is free.
-3. Each implementation agent must first check `gh issue view <n> --json state -q .state` from `repoPath`; if closed, return `skipped-already-closed` and make no worktree changes. Otherwise it must work only in its assigned worktree, invoke `$mattpocock-skills:tdd`, read the issue and relevant code, use focused red-green TDD, run focused tests plus appropriate `ruff` and `ty` checks, and leave one cohesive uncommitted diff. Tests must be fast, isolated, repeatable, self-validating, timely, and release every acquired resource. Use modern Python 3.10+ native type syntax when Python changes are needed. Return `implemented`, `already-committed`, `needs-input`, or `blocked`, together with `codeFilesTouched`, summary, changed files, validation, commit SHA when present, and exact blocker/question when applicable.
-4. When `codeFilesTouched` is true, spawn a fresh review agent with the issue, worktree, acceptance criteria, and implementation report. It must invoke `$mattpocock-skills:code-review` on the unstaged diff with `$sgche:marc-andreessen-persona`, and report only documented-standard or spec defects. It must not edit, commit, merge, or close issues. Skip review when no code files changed. If it finds hard defects, use `followup_task` on the now-idle implementation agent to make the targeted fix and revalidate. Do not fix subjective nits.
-5. After review passes, use `followup_task` to ask the idle implementation agent to commit only its assigned diff. Require one conventional commit and a report containing issue number, commit SHA, changed files, validation run, and any blocker. Do not let implementation or review agents touch the root checkout, another worktree, GitHub comments, issue state, or branches outside their assignment.
+1. Root creates or reuses `<repoPath>/.claude/worktrees/issue-<n>` on `resolve-tickets-codex/issue-<n>` for each runnable issue. Branch from target HEAD immediately before level. Reuse only clean worktrees whose branch is ahead; never overwrite dirty work. `.claude/worktrees` is workflow state, not issue code.
+2. Spawn at most available slots minus root. One issue and worktree per implementation agent. Prompt must state: “Invoke and follow `$mattpocock-skills:tdd` before editing. Use red-green vertical slices: one confirmed public seam and one failing test before each minimal implementation.” Start another agent only when a slot is free.
+3. Agent first runs `gh issue view <n> --json state -q .state` from `repoPath`. If closed, return `skipped-already-closed` and make no worktree changes. Otherwise work only in assigned worktree. Invoke TDD before editing; read issue and code; confirm public seams against acceptance criteria, or return `needs-input` before editing. For every slice, run one failing behavior-level test, then add only code needed to pass it. Run focused tests and applicable `ruff`/`ty`; leave one cohesive uncommitted diff. Tests are fast, isolated, repeatable, self-validating, timely, and release resources. Python uses 3.10+ native types. Return `implemented`, `already-committed`, `needs-input`, or `blocked`, plus `codeFilesTouched`, summary, changed files, validation, `tddEvidence` (confirmed seams; red and green command/result for every slice), commit SHA when present, and exact blocker/question. Missing TDD evidence is incomplete: no review or commit.
+4. If `codeFilesTouched`, spawn fresh review agent with issue, worktree, acceptance criteria, and implementation report. It invokes required review/persona skills on unstaged diff and reports only documented-standard or spec defects. It never edits, commits, merges, or closes issues. Skip when no code files changed. Hard defects: `followup_task` idle implementation agent for targeted fix and revalidation. Ignore subjective nits.
+5. After passing review, `followup_task` idle implementation agent to commit only assigned diff. Require one conventional commit and issue number, commit SHA, changed files, validation, and blocker report. Implementation/review agents never touch root checkout, another worktree, GitHub comments/state, or other branches.
 
-Use focused, batched reads and cohesive patches. Do not repeat successful commands or run a full suite for a narrow change. Before diagnosing a seemingly unrelated failure, stash tracked and untracked local changes temporarily, rerun the affected test cleanly, then restore them.
+Use focused batched reads and cohesive patches. Do not repeat successful commands or run full suite for narrow change. Before diagnosing unrelated failure, temporarily stash tracked and untracked local changes, rerun affected test cleanly, then restore them.
 
 ## Integration and recovery
 
-After every runnable ticket in a level has a validated commit, integrate serially in the root agent from `repoPath`, preserving the selected target branch:
+After every runnable ticket in a level has a validated commit, root integrates serially from `repoPath` on selected target branch:
 
-1. Merge each issue branch with `git merge --no-edit` in deterministic issue-number order.
-2. On a merge conflict, abort that merge. Use `followup_task` to send the issue's idle implementation agent to resolve the conflict in its assigned worktree: update its issue branch with the current target branch, resolve only the resulting conflicts, run affected validation, and commit the resolution with a conventional commit. The agent must report the commit SHA, files resolved, and validation. The root agent then retries that issue's merge. If the agent reports a non-code blocker, record `merge-conflict-blocked`, preserve the branch and worktree, and continue the remaining entries. Never force-remove a worktree or branch. Do not ask the user to resolve code-level merge conflicts.
-3. For a successful merge, confirm the issue is still open, comment `Resolved by <sha>. <summary>.`, then close it with `gh issue close <n> --reason completed`.
-4. Only after a successful merge and close, remove that worktree normally and delete its branch. Preserve failed integration artifacts for inspection.
+1. `git merge --no-edit` each issue branch in issue-number order.
+2. Conflict: abort merge, then `followup_task` issue implementation agent. In assigned worktree, it updates issue branch with current target, resolves only resulting conflicts, runs affected validation, and creates conventional resolution commit. It reports SHA, resolved files, and validation; root retries merge. Non-code blocker becomes `merge-conflict-blocked`; preserve branch/worktree and continue remaining entries. Never force-remove worktree/branch or ask user to resolve code conflict.
+3. Successful merge: confirm issue remains open, comment `Resolved by <sha>. <summary>.`, then `gh issue close <n> --reason completed`.
+4. Only after merge and close, normally remove worktree and delete branch. Preserve failed integration artifacts.
 
-If an agent needs a design decision that only the user can make, it must stop before editing and return the exact question. Relay it verbatim, do not guess, and keep dependents blocked. To resume, reuse the same worktree and branch after the user answers; re-check issue state and the existing commit before repeating work.
+Design decision requiring user choice: agent stops before editing and returns exact question. Relay verbatim; do not guess; block dependents. After answer, reuse worktree/branch, re-check issue state and existing commit, then resume.
 
-## Result contract and recovery
+## Result and reruns
 
 Return exactly `{ closed, levels, pendingQuestions, unresolved, results }`.
 
 - `closed`: issue numbers closed after merge.
-- `levels`: computed dependency levels, each an array of issue numbers.
-- `pendingQuestions`: `{ issueNumber, question }` entries, with the question relayed verbatim.
-- `unresolved`: every requested issue that did not close.
-- `results`: per-step records, including planning, implementation, review, fix, commit, integration, skips, commit SHAs, validation, blockers, and preserved worktree paths.
+- `levels`: computed dependency levels, each an issue-number array.
+- `pendingQuestions`: `{ issueNumber, question }`, relayed verbatim.
+- `unresolved`: every requested issue not closed.
+- `results`: planning, implementation, review, fix, commit, integration, skip, SHA, validation, blocker, and preserved-worktree records.
 
-On interruption, rerun the same request. Check issue state first; closed issues return `skipped-already-closed`. Reuse existing worktrees rather than recreating them. A clean issue worktree with commits ahead of the target branch returns `already-committed` and proceeds to integration. Leave blocked and `merge-conflict-blocked` worktrees intact. Do not force-remove worktrees or branches. Do not push or open a pull request unless the user explicitly asks.
+On interruption, rerun same request. Check state first: closed returns `skipped-already-closed`. Reuse existing worktrees. Clean worktree whose branch is ahead returns `already-committed` then integrates. Preserve blocked and `merge-conflict-blocked` worktrees. Do not push or open PR unless user explicitly asks.
 
-Do not guess at `needs-input`, retry a `blocked` step without addressing its reported cause, or assume the DAG detects unrecorded code overlap. A merge-conflict recovery preserves the issue branch and worktree until its implementation agent has resolved, validated, and committed the conflict; a `merge-conflict-blocked` result preserves them for a later explicit run.
+Never guess at `needs-input`, retry `blocked` without resolving reported cause, or treat DAG as proof of no unrecorded code overlap. Preserve merge-conflict branch/worktree until implementation agent resolves, validates, and commits; preserve `merge-conflict-blocked` artifacts for a later explicit run.
