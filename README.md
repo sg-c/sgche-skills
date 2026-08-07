@@ -8,7 +8,7 @@ Composable workflow overlays, published as a single plugin named **`sgche`**. Ea
 |----------|-------|---------------------|
 | Codex + Claude Code | `sgche:marc-andreessen-persona` | `sgche:marc-andreessen-persona` + `deep-research`, or alone for opinion/analysis questions |
 | Codex | `sgche:auto-prod-grilling` | `sgche:auto-prod-grilling` to turn a product goal into a decision-complete implementation plan |
-| Codex | `sgche:resolve-tickets-codex` | `sgche:resolve-tickets-codex` over a batch of issue numbers |
+| Codex | `sgche:resolve-tickets-codex` | `sgche:resolve-tickets-codex` with one parent issue and its target worktree |
 | Codex | `sgche:prep-arch-improvement` | `sgche:prep-arch-improvement` to prepare one reviewed architecture-improvement plan |
 | Codex | `sgche:plan-reviewer` | `sgche:plan-reviewer` to review, revise, and commit a plan twice |
 | Claude Code | `sgche:resolve-tickets-optim` | `sgche:resolve-tickets-optim` over a batch of issue numbers |
