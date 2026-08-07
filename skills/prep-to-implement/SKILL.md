@@ -52,8 +52,6 @@ For `fine`, audit every proposed ticket after `to-tickets` finishes. Split it re
 
 Keep one root agent responsible for the worktree, final breakdown, approval, and every GitHub write. For a plan too large for one context, delegate only independent, read-only plan-section analysis and an optional fine-granularity audit. Give each delegate a bounded plan area and require candidate vertical slices and dependencies. Reconcile their findings in the root before presenting one coherent breakdown. Delegates never inspect source code or create worktrees, branches, issues, or approval prompts.
 
-Every issue must include `Implementation plan: <planPath>`. Keep child descriptions concise: include only `What to build`, `Acceptance criteria`, the plan path, parent issue reference, and `Blocked by: <issue numbers|None>`. Child implementation agents may read the original plan.
-
 ## Publish GitHub issues
 
 Only after approval, publish in this order:
@@ -66,11 +64,11 @@ Only after approval, publish in this order:
    - `Base commit: <baseSha>`
    - the approved ticket summary.
 2. Never embed or repeat the implementation plan's contents in an issue description.
-3. Create every child issue after the parent, in dependency order. Use the concise child description above. Each child explicitly names and links its parent and uses exactly `Blocked by: #<issue>, ...` or `Blocked by: None`.
-4. Attach each child to the parent using GitHub's native sub-issue relationship. For GitHub CLI environments without a dedicated sub-issue command, use the GitHub REST API through `gh api` rather than a task-list-only convention. Verify every child reports the parent through GitHub's native relationship.
-5. Update the parent description with a linked child-issue list, each child's exact `Blocked by` value, and its native-parent relationship. Verify the parent and every child remain open and readable.
+3. Publish every child issue using `$mattpocock-skills:to-tickets`' tracker rules. It owns child issue content, labels, native blocking links, and verification; do not add, remove, or reinterpret any of those rules here.
+4. Attach each published child to the parent using GitHub's native sub-issue relationship. For GitHub CLI environments without a dedicated sub-issue command, use the GitHub REST API through `gh api` rather than a task-list-only convention. Verify every child reports the parent through GitHub's native relationship.
+5. Update the parent description with a linked child-issue list and its native-parent relationships. Verify the parent and every child remain open and readable.
 
-Do not apply labels, close issues, push, or create pull requests unless the user separately requests them.
+Do not close issues, push, or create pull requests unless the user separately requests them.
 
 ## Rejection and recovery
 
