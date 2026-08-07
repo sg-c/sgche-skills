@@ -5,27 +5,27 @@ description: "Batch-close one GitHub parent issue and its linked sub-issues: use
 
 # Resolve Tickets — Codex
 
-Run only when user explicitly invokes `$resolve-tickets-codex`. Workflow changes code, commits, GitHub state. Use user-supplied target worktree only for integration and whole-plan work; use dedicated child worktrees only for child implementation.
+Run only when user explicitly invokes `$resolve-tickets-codex`. Workflow changes code, commits, GitHub state. Discover the target worktree from the parent issue; use it only for integration and whole-plan work, and use dedicated child worktrees only for child implementation.
 
-Input: one open `parentIssue` number and absolute `targetWorktree` path. No issue list. Root owns GitHub writes, target branch integration, final result. Child prompts include parent issue, sub-issue number, plan, and absolute child-worktree path.
+Input: one open `parentIssue` number. No issue list or worktree path. Root owns GitHub writes, target branch integration, final result. Child prompts include parent issue, sub-issue number, plan, and absolute child-worktree path.
 
 ## Hard preflight gates
 
 Run every check before creating worktree files, editing code, committing, commenting, closing issues, or spawning implementation agents. Any failed gate stops workflow immediately with exact failed check. Do not fall back, infer missing data, or ask later.
 
-From `targetWorktree`:
-
-1. Verify path is absolute, exists, is a Git worktree registered by `git worktree list --porcelain`, belongs to intended repository, and is not main/root checkout. Verify branch and `git status --short`; dirty target worktree fails. Capture target branch and `baseSha=$(git rev-parse HEAD)`.
-2. Verify `gh auth status`; fetch parent issue body, comments, state, and native sub-issue links. Parent must be open and reachable.
-3. Find implementation plan. Accept either actionable, non-empty implementation steps in parent body, or a local plan file explicitly referenced in parent body. For file plan: resolve path relative to repository root; file must exist, stay inside repository, and contain actionable, non-empty steps. Record plan source and exact plan text. A bare link, an issue comment, or an unreferenced local file fails.
-4. Fetch every child from native parent-child links. Require at least one child. Each child must report this parent as its native parent; prose references, task lists, labels, or issue links do not count. Fail when relation missing, child inaccessible, or duplicated. Record already-closed children without editing them.
-5. Build dependency DAG only from explicit `blocked by`, `depends on`, `requires`, `after`, reverse `blocks`, and native parent-child links among children. Record external blockers. Fail on cycles, omitted referenced in-batch child, or open external blocker.
+1. From the invocation directory, require a Git worktree and determine its GitHub repository identity. Verify `gh auth status`; fetch the parent issue body, comments, state, and native sub-issue links from that repository. Parent must be open and reachable.
+2. Require a parent metadata block created by `$prep-to-implement`: `Repository`, `Implementation plan`, `Target worktree`, `Target branch`, and `Base commit`. Reject missing, duplicated, malformed, or contradictory fields. `Repository` must match the invocation repository; `Implementation plan` must be repository-relative; `Target worktree` must be absolute; and `Base commit` must be a full commit SHA.
+3. Set `targetWorktree`, `targetBranch`, `planPath`, `baseSha`, and repository identity from that metadata. Verify the path exists, is a Git worktree registered by `git worktree list --porcelain`, and is not its repository root checkout. Set `repoRoot` from that worktree and verify its GitHub repository identity matches the recorded repository. Verify its branch exactly matches `targetBranch`, it is clean, and `baseSha` is an ancestor of its `HEAD`.
+4. Derive `plan-slug` from `planPath`'s filename. Require `targetWorktree` to equal `<repoRoot>/.claude/worktrees/implement-<plan-slug>/target` and `targetBranch` to equal `implement/<plan-slug>`. This prevents a parent issue from selecting a different implementation batch.
+5. Read the implementation plan from `<baseSha>:<planPath>`. The path must stay inside the repository after resolution and the file must contain actionable, non-empty steps. Record the exact plan text. A plan body, issue comment, bare link, absolute path, or unreferenced local file fails.
+6. Fetch every child from native parent-child links. Require at least one child. Each child must report this parent as its native parent; prose references, task lists, labels, or issue links do not count. Fail when relation missing, child inaccessible, or duplicated. Record already-closed children without editing them.
+7. Build the dependency DAG only from each child's exact `Blocked by: #<issue>, ...` or `Blocked by: None` field. Record external blockers. Fail on malformed or missing fields, cycles, omitted referenced in-batch child, or an open external blocker.
 
 Report `baseSha`, target branch/worktree, plan source, child numbers, and dependency levels. Only then start work.
 
 ## Child worktrees and implementation
 
-`targetWorktree` is parent integration worktree. Never edit implementation code there until whole-plan repair. For each runnable child, root creates or reuses `<repoRoot>/.claude/worktrees/parent-<parentIssue>/issue-<childIssue>` on `resolve-tickets-codex/parent-<parentIssue>/issue-<childIssue>`. Create branch from target HEAD immediately before its dependency level. Reuse only clean child worktree whose branch is ahead of target; never overwrite dirty worktree.
+`targetWorktree` is parent integration worktree. Never edit implementation code there until whole-plan repair. For each runnable child, root creates or reuses `<repoRoot>/.claude/worktrees/implement-<plan-slug>/issue-<childIssue>` on `implement/<plan-slug>/issue-<childIssue>`. Create branch from target HEAD immediately before its dependency level. Reuse only clean child worktree whose branch is ahead of target; never overwrite dirty worktree.
 
 Run a level only after prerequisites merge into target. Spawn at most available slots minus root: one implementation agent and one child worktree per runnable child. Parallel agents never share a worktree. Root never edits child worktrees.
 
