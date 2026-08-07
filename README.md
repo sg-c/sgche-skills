@@ -38,6 +38,13 @@ codex plugin marketplace add sg-c/sgche-skills
 codex plugin add sgche@sgche-skills
 ```
 
+## Codex workflows
+
+Use these explicit-invocation workflows in sequence:
+
+- Build new features: `sgche:auto-prod-grilling` → `sgche:review-plan` → `sgche:prep-to-implement` → `sgche:resolve-tickets-codex`
+- Refactor code: `sgche:prep-arch-improvement` → `sgche:review-plan` → `sgche:prep-to-implement` → `sgche:resolve-tickets-codex`
+
 ## Layout
 
 ```
