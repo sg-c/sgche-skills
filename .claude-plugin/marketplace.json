@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Saiguang's composable workflow overlays",
-    "version": "0.1.11"
+    "version": "0.1.12"
   },
   "plugins": [
     {
