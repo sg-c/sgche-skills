@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Saiguang's composable workflow overlays",
-    "version": "0.1.3"
+    "version": "0.1.4"
   },
   "plugins": [
     {
@@ -17,6 +17,7 @@
       "skills": [
         "./skills/marc-andreessen-persona",
         "./skills/resolve-tickets-codex",
+        "./skills/prep-to-implement",
         "./claude-skills/resolve-tickets"
       ]
     }

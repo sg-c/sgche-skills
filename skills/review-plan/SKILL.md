@@ -1,6 +1,6 @@
 ---
-name: plan-reviewer
-description: "Review and revise one committed Markdown plan through two sequential Codex subagents, then commit supported changes after each pass. Use only when the user explicitly invokes $plan-reviewer with exactly one plan path. Uses the most capable available model at low then medium effort, pauses for irreducible human decisions, and creates Git commits. Codex-only; never self-activate."
+name: review-plan
+description: "Review and revise one committed Markdown plan through two sequential Codex subagents, then commit supported changes after each pass. Use only when the user explicitly invokes $review-plan with exactly one plan path. Uses the most capable available model at low then medium effort, pauses for irreducible human decisions, and creates Git commits. Codex-only; never self-activate."
 ---
 
 # Review a Plan Twice

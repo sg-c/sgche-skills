@@ -1,7 +1,7 @@
 {
   "name": "sgche",
-  "version": "0.1.11",
-  "description": "Codex-native product decisioning, ticket resolution, architecture planning, plan review, and blunt first-principles analysis.",
+  "version": "0.1.13",
+  "description": "Codex-native plan-to-ticket preparation, product decisioning, ticket resolution, architecture planning, plan review, and blunt first-principles analysis.",
   "author": {
     "name": "Saiguang Che",
     "email": "stonnyaiqi@gmail.com",
@@ -36,7 +36,8 @@
       "Use sgche:resolve-tickets-codex to close issues 42-45 efficiently.",
       "Use sgche:prep-arch-improvement to prepare a reviewed plan for this repository.",
       "Use sgche:auto-prod-grilling to turn this product goal into decisions and an implementation plan.",
-      "Use sgche:plan-reviewer to review and revise this committed implementation plan twice."
+      "Use sgche:review-plan to review and revise this committed implementation plan twice.",
+      "Use sgche:prep-to-implement with /absolute/path/to/plan.md and fine granularity."
     ],
     "brandColor": "#2563EB"
   }

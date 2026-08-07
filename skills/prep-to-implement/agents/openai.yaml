@@ -1,0 +1,4 @@
+interface:
+  display_name: "Prepare to Implement"
+  short_description: "Create a worktree and GitHub tickets from a plan."
+  default_prompt: "Use $prep-to-implement with /absolute/path/to/plan.md and fine granularity."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Review Plan"
+  short_description: "Review and strengthen a committed plan twice"
+  default_prompt: "Use $review-plan to review and revise this committed Markdown plan twice."
