@@ -1,6 +1,6 @@
 ---
 name: prep-to-implement
-description: "Prepare one approved local implementation plan for agent implementation: create its dedicated worktree and branch, then publish a GitHub parent issue with native child issues. Use only when the user explicitly invokes $prep-to-implement with a local plan path and `fine` or `coarse` sub-ticket granularity. Never self-activate: this workflow creates Git worktrees, branches, and GitHub issues."
+description: "Prepare one approved local implementation plan for agent implementation: create its dedicated worktree and branch, then publish a GitHub parent issue with native child issues. Use only when the user explicitly invokes $prep-to-implement with a local plan path and optional `fine` granularity. Never self-activate: this workflow creates Git worktrees, branches, and GitHub issues."
 ---
 
 # Prep To Implement
@@ -8,10 +8,10 @@ description: "Prepare one approved local implementation plan for agent implement
 Run only on an explicit invocation in this exact form:
 
 ```text
-$prep-to-implement <local-plan-path> <fine|coarse>
+$prep-to-implement <local-plan-path> [fine]
 ```
 
-Both arguments are required. Do not infer either one. `local-plan-path` must resolve to a regular, non-empty local file. `fine` and `coarse` are the only accepted values. On any invalid or missing input, stop before creating a worktree, branch, or GitHub issue.
+`local-plan-path` is required; `fine` is the only optional granularity argument. Do not infer either one. `local-plan-path` must resolve to a regular, non-empty local file. With no granularity argument, use the default `$mattpocock-skills:to-tickets` breakdown unchanged. On any invalid or missing plan path or unsupported granularity, stop before creating a worktree, branch, or GitHub issue.
 
 This workflow creates Git and GitHub state. Never self-activate it.
 
@@ -46,11 +46,9 @@ If a later step fails, preserve this newly created implementation space and repo
 
 From `targetWorktree`, read the implementation plan, then invoke and follow `$mattpocock-skills:to-tickets` with its text. Treat GitHub as the configured tracker. Create no issues during drafting. Do not inspect repository source code, tests, configuration, or history: this workflow decomposes the plan only.
 
-Use its tracer-bullet, dependency, and user-approval requirements. Show the proposed breakdown and wait for explicit approval before publishing.
+Use its tracer-bullet, dependency, and user-approval requirements. With no granularity argument, preserve its resulting breakdown; do not merge, reduce, or otherwise reinterpret its tracer-bullet slices. Show the proposed breakdown and wait for explicit approval before publishing.
 
-For `coarse`, use the resulting breakdown without forced extra splitting.
-
-For `fine`, audit every proposed ticket after `to-tickets` finishes. Split it repeatedly until every child is the smallest independently completable and verifiable agent task. A fine ticket has one narrow outcome, explicit acceptance criteria, and no unrelated concern. Do not split atomic changes whose correctness requires them together. Recheck all dependency edges after each split. This override is required because large slices risk exceeding an implementation agent's context window.
+For `fine`, audit every proposed ticket after `to-tickets` finishes. Split it repeatedly until every child is the smallest independently completable and verifiable agent task. A fine ticket has one narrow outcome, explicit acceptance criteria, and no unrelated concern. Do not split atomic changes whose correctness requires them together. Recheck all dependency edges after each split. This post-pass is required because large slices risk exceeding an implementation agent's context window.
 
 Keep one root agent responsible for the worktree, final breakdown, approval, and every GitHub write. For a plan too large for one context, delegate only independent, read-only plan-section analysis and an optional fine-granularity audit. Give each delegate a bounded plan area and require candidate vertical slices and dependencies. Reconcile their findings in the root before presenting one coherent breakdown. Delegates never inspect source code or create worktrees, branches, issues, or approval prompts.
 
