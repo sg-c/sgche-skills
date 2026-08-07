@@ -57,11 +57,11 @@ Grilling agent maintains ledger: every question ID has exactly one terminal stat
 
 When no user questions remain, show:
 
-1. Decisions, covering every decided ID with rationale and confidence.
+1. **Decision check**: a very concise list of final decisions, one line per ID (`ID — decision`), for user awareness.
 2. Material risks and assumptions only.
 3. Compact coverage ledger or state counts for every ID.
 
-Ask once for explicit authorization to create plan. Do not write before confirmation.
+Ask the user to either confirm the decisions and explicitly authorize plan creation, or name decisions to change. If the user changes a decision, send the change to the grilling agent; it refines the decision tree and ledger, reopens affected dependents, and returns the next frontier. Continue the decision loop until the user confirms the resulting decision check. Do not write before confirmation.
 
 ## Plan
 
