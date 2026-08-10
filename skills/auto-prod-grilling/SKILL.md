@@ -1,6 +1,6 @@
 ---
 name: auto-prod-grilling
-description: "Explicit-only Codex product-decision workflow: turn a product goal into an evidence-backed decision ledger, then, after user confirmation, a repository-specific implementation plan. Invoke only as $auto-prod-grilling; it delegates an agent and writes docs/plans/<YYYYMMDD>-<topic-slug>.md, so never self-activate."
+description: "Explicit-only Codex product-decision workflow: turn a product goal into an evidence-backed decision ledger, then, after user confirmation, create and commit a repository-specific implementation plan. Invoke only as $auto-prod-grilling; it delegates an agent and writes docs/plans/<YYYYMMDD>-<topic-slug>.md, so never self-activate."
 ---
 
 # Product Manager
@@ -88,4 +88,6 @@ Plan must be executable without rediscovering decisions:
 
 Use `$mattpocock-skills:handoff` only when a fresh plan author needs context; its file is supporting context, never plan artifact.
 
-Report plan path, branch/worktree, ledger counts, and material residual risks. Do not implement, commit, push, or open PR unless separately requested.
+After the grilling agent writes the plan, re-read it and inspect the path-limited diff. If the plan is valid and changed, commit only that plan as `docs(plan): create <name>`. Verify the committed path and contents, and preserve all unrelated staged and unstaged state exactly. If plan-only isolation is unsafe, pause rather than commit. Never create an empty commit.
+
+Report plan path, branch/worktree, commit hash or `no changes`, ledger counts, and material residual risks. Do not implement, push, or open PR unless separately requested.
