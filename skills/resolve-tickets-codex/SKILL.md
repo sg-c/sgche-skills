@@ -47,12 +47,14 @@ After every child is closed, keep target worktree on target branch. Invoke `$mat
 
 If review reports hard standards or spec defects, invoke and follow `$mattpocock-skills:tdd` in `targetWorktree` to fix them. Derive the public seam from the parent plan and changed code; use red-green slices, focused validation, and conventional repair commits. Rerun whole-plan review against same `baseSha` until hard defects are zero. A finding requiring a product choice returns `needs-input`; do not close parent.
 
-After whole-plan review passes, perform delivery cleanup before closing the parent or returning success:
+After whole-plan review passes, enter delivery integration. Main may advance while child work runs; integration is a convergence loop, not a one-shot fast-forward. Merge rather than rebase `targetBranch`: child closure comments record their original commit SHAs and must remain truthful.
 
-1. Verify every native child is closed, the target worktree has no active Git operation, its `git status --porcelain=v1 -z --ignore-submodules=none` is empty, and the parent remains open. Locate the registered worktree checked out on `main`; require it to be distinct from `targetWorktree`, have no active Git operation, and return an empty `git status --porcelain=v1 -z --ignore-submodules=none`.
-2. Fast-forward merge `targetBranch` into `main` from that main worktree with `git merge --ff-only <targetBranch>`. Record the resulting main SHA and verify it contains target `HEAD`. Do not push unless the user explicitly asks. If `main` is dirty, unavailable, or cannot fast-forward, stop with the exact blocker; leave parent open and preserve target worktree and branch.
-3. Remove the clean target worktree with `git worktree remove <targetWorktree>`, then delete the merged target branch with `git branch -d <targetBranch>`. Confirm both are absent from `git worktree list --porcelain` and `git branch`. If either cleanup action fails, stop with the exact blocker; leave the parent open.
-4. Comment on the parent with the child commits, whole-plan review result, final validation, and resulting main SHA; then close it with `gh issue close <parentIssue> --reason completed`.
+1. Establish delivery state: verify every native child is closed, parent remains open, and target worktree is clean with no active Git operation. Locate registered worktree checked out on `main`; require it to be distinct from target, clean, and free of an active Git operation. Record both tips and discover project's applicable automated checks from its existing tooling and documentation.
+2. Converge branches. If target already contains `main`, continue. If `main` already contains target, fast-forward target to `main`. Otherwise merge `main` into target from `targetWorktree` with a conventional integration commit. This integration merge and any integration repair are permitted in target; they are neither child implementation nor unrelated cleanup. On conflicts, invoke and follow `$mattpocock-skills:resolving-merge-conflicts`: recover each hunk's intent from commits, plan, tickets, and code; preserve compatible intent; do not invent behavior; complete merge. Preserve conflict evidence.
+3. Prove integrated result, not individual commands. Target must be clean, have no active Git operation, contain current `main`, retain recorded plan work, satisfy plan acceptance criteria, and pass applicable automated checks. A failed check or failed acceptance criterion is an integration defect. Diagnose it against pre-integration state and integration changes; make minimum compatible repair in target, following `$mattpocock-skills:tdd` for behavioral changes. Re-run affected checks and this proof. Invoke the existing whole-plan review-and-repair loop only when repair changes implementation behavior or focused verification identifies a standards/spec defect. Return `needs-input` only for an irreducible product choice; otherwise keep repairing. Record integration commits, conflict evidence, repairs, and validation.
+4. Fast-forward merge `targetBranch` into `main` from main worktree with `git merge --ff-only <targetBranch>`. Record resulting main SHA and verify it contains target `HEAD`. Do not push unless user explicitly asks. If branch tips changed or fast-forward cannot establish this proof, return to step 1; stop only on a non-recoverable exact blocker and preserve parent, worktrees, and branches.
+5. Remove clean target worktree with `git worktree remove <targetWorktree>`, then delete merged target branch with `git branch -d <targetBranch>`. Confirm both absent from `git worktree list --porcelain` and `git branch`. If cleanup fails, stop with exact blocker; leave parent open.
+6. Comment on parent with child commits, whole-plan review result, integration result, final validation, and resulting main SHA; then close it with `gh issue close <parentIssue> --reason completed`.
 
 ## Recovery and result
 
@@ -83,7 +85,7 @@ Completed and closed: #<child>, …, and parent #<parentIssue>.
 
 | Delivery cleanup | Result |
 |---|---|
-| Integrated | `<targetBranch>` → `main` at `<short main SHA>` |
+| Integrated | `<targetBranch>` → `main` at `<short main SHA>` (including any required `main` reconciliation) |
 | Removed | Target worktree and implementation branch removed |
 | GitHub closure | All child issues and parent issue closed |
 
