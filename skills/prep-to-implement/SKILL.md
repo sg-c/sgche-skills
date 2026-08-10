@@ -20,14 +20,14 @@ This workflow creates Git and GitHub state. Never self-activate it.
 Before any mutation:
 
 1. Resolve the plan path to an absolute path. Require a regular, readable, non-empty file using metadata or byte count; do not read its contents yet.
-2. Find the repository root with `git rev-parse --show-toplevel`. Require a normal Git worktree, a symbolic current branch, no merge/rebase/cherry-pick in progress, and working GitHub authentication via `gh auth status`.
+2. Find the repository root with `git rev-parse --show-toplevel`. Require a normal Git worktree and a symbolic current branch. Require its status from `git status --porcelain=v1 -z --ignore-submodules=none` to be empty: staged, unstaged, untracked, conflicted, and submodule changes all fail. Reject an active Git operation before any mutation: detect rebase or `git am` from the existence of the Git-resolved `rebase-merge` or `rebase-apply` directory; detect merge, cherry-pick, and revert from `MERGE_HEAD`, `CHERRY_PICK_HEAD`, and `REVERT_HEAD`; and reject an existing Git-resolved `sequencer` directory. Do not use `REBASE_HEAD` as an activity gate: it can be stale after a completed rebase. Require working GitHub authentication via `gh auth status`.
 3. Require the resolved plan path to be inside `repoRoot`. Record its repository-relative path as `planPath`; do not permit `..` traversal or a symlink escape. Require it to exist in `HEAD` and have no staged or unstaged changes relative to `HEAD`, so the target worktree and recorded base commit contain the approved plan.
 4. Derive `plan-slug` from the plan filename: lowercase ASCII hyphen-case, omitting its extension. Require a non-empty slug.
 5. Set `worktreeRoot` to `<repoRoot>/.claude/worktrees/implement-<plan-slug>`, `targetWorktree` to `<worktreeRoot>/target`, and `targetBranch` to exactly `implement/<plan-slug>`.
 6. Fail if the target path already exists, the branch already exists, or `git worktree list --porcelain` already registers either path. Do not reuse an existing worktree or branch.
 7. Determine the GitHub repository identity with `gh repo view --json nameWithOwner`. Stop if it cannot be resolved.
 
-Do not require the source worktree to be clean: the new worktree is created from its current `HEAD`, not from uncommitted changes. Report that base SHA and source branch.
+Report the source branch and base SHA. The target worktree is always created from that exact, clean `HEAD`.
 
 ## Create implementation space first
 
@@ -38,7 +38,7 @@ git -C "<repoRoot>" worktree add -b "implement/<plan-slug>" \
   "<repoRoot>/.claude/worktrees/implement-<plan-slug>/target" HEAD
 ```
 
-Verify the registered worktree, branch, `HEAD`, and clean status. All later plan exploration and implementation belong in this target worktree. Never create another implementation worktree in this workflow.
+Verify the registered worktree, its symbolic branch, exact `HEAD`, and an empty `git status --porcelain=v1 -z --ignore-submodules=none`. Re-run the active-operation checks above in the target worktree. All later plan exploration and implementation belong in this target worktree. Never create another implementation worktree in this workflow.
 
 If a later step fails, preserve this newly created implementation space and report its absolute path and branch. Do not silently delete it.
 
