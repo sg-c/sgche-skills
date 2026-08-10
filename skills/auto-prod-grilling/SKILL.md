@@ -75,7 +75,7 @@ Plan must be executable without rediscovering decisions:
 
 1. Goal, target user, scope, non-goals, outcome metric, guardrail metric.
 2. Decisions with question IDs and rationale.
-3. Dependency-ordered repository-specific steps: files/modules, behavior/interfaces, migrations or compatibility, tests.
+3. Dependency-ordered repository-specific steps: files/modules, behavior/interfaces, migrations or compatibility, tests. Give every code-changing step a **test surface**: the public interface and observable behavior its tests exercise. Derive it from the agreed scope and repository; it is technical plan detail, not a user decision.
 4. Validation and acceptance criteria tied to metrics where measurable.
 5. Risks, assumptions, deferred work.
 6. Final ledger covering every grilling question.

@@ -31,8 +31,8 @@ Run a level only after every prerequisite has merged into target. Spawn no more 
 
 For each open child:
 
-1. Agent re-checks child state from its child worktree; skip only if already closed before preflight. Read child requirements and relevant plan section. If child has design question, return `needs-input` before editing; block dependent children.
-2. Invoke and follow `$mattpocock-skills:tdd` before editing. Confirm public test seams against child acceptance criteria. If seams need user confirmation, return `needs-input` before writing tests. Use red-green vertical slices: one confirmed seam, one failing behavior test, minimum passing code. Record seam and red/green command plus result for every slice.
+1. Agent re-checks child state from its child worktree; skip only if already closed before preflight. Read child requirements and relevant plan section, including its test surface. Derive a missing test surface from the acceptance criteria and relevant code. Return `needs-input` only when user-visible behavior remains ambiguous; block dependent children.
+2. Invoke and follow `$mattpocock-skills:tdd` before editing. The plan's test surface is the confirmed public seam; settle any remaining technical detail from the codebase. Use red-green vertical slices: one confirmed seam, one failing behavior test, minimum passing code. Record seam and red/green command plus result for every slice.
 3. Edit and validate only in child worktree. Run focused tests and applicable `ruff`/`ty`. Leave cohesive diff. Missing TDD evidence is incomplete.
 4. Invoke `$mattpocock-skills:code-review` against changes since child start SHA, with child requirements as spec. Review must run before commit. Fix hard standards or spec defects through TDD in same child worktree; rerun affected validation and review. Subjective nits do not block.
 5. Commit only child diff in child worktree: one conventional commit mentioning child issue. Confirm child worktree clean. Return commit SHA, validation, review, and TDD evidence. Implementation agents never merge, comment, close issues, or touch target worktree.
@@ -45,7 +45,7 @@ Blocked, failed, or `needs-input` child blocks descendants; unrelated children c
 
 After every child is closed, keep target worktree on target branch. Invoke `$mattpocock-skills:code-review` for `git diff <baseSha>...HEAD`, using full recorded parent plan as spec. This covers the complete plan; child reviews do not replace it.
 
-If review reports hard standards or spec defects, invoke and follow `$mattpocock-skills:tdd` in `targetWorktree` to fix them. Confirm seams against parent plan before test work; use red-green slices, focused validation, and conventional repair commits. Rerun whole-plan review against same `baseSha` until hard defects are zero. A finding requiring a product or design choice returns `needs-input`; do not close parent.
+If review reports hard standards or spec defects, invoke and follow `$mattpocock-skills:tdd` in `targetWorktree` to fix them. Derive the public seam from the parent plan and changed code; use red-green slices, focused validation, and conventional repair commits. Rerun whole-plan review against same `baseSha` until hard defects are zero. A finding requiring a product choice returns `needs-input`; do not close parent.
 
 After whole-plan review passes, perform delivery cleanup before closing the parent or returning success:
 
