@@ -33,6 +33,12 @@ Apply smallest useful set:
 
 Use `$sgche:marc-andreessen-persona` for root's internal challenge pass. It sharpens recommendations; it never replaces evidence. Framework sources may explain a framework, never prove a repository-specific claim.
 
+## Decision explanation
+
+Explain each user-facing decision with a concrete, scope-specific example before abstract rationale. Lead with the decision, then show the consequence in one concise `For example:` sentence. Use the example to make the trade-off observable; omit it only when the decision is already self-evident.
+
+Example: `Use email magic links — for example, a returning customer can approve an invoice from their inbox without creating or remembering a password.`
+
 ## Prepare
 
 1. Resolve repository root, branch, worktree, and status. Read applicable `AGENTS.md`; inspect relevant code, tests, docs, issues, research, and plans.
@@ -44,7 +50,7 @@ Use `$sgche:marc-andreessen-persona` for root's internal challenge pass. It shar
 1. Root investigates product and repository, then answers grilling frontier. For every answer at >=70% confidence and within authority, record decision, one-line rationale, claim type, confidence, and constraints applied.
 2. Send answers to grilling agent. It verifies prerequisites, updates tree and ledger, resolves new independent frontiers, and returns user-blocked questions.
 3. Repeat until no answerable question remains. Complete independent branches before escalation.
-4. When user decisions block progress, present one consolidated batch. Per item: ID, decision, uncertainty, options, recommendation, confidence, and implementation impact. Exclude questions available evidence can answer.
+4. When user decisions block progress, present one consolidated batch. Per item: ID, decision, uncertainty, options, recommendation, confidence, and implementation impact. Explain the recommendation with a concrete example. Exclude questions available evidence can answer.
 5. After user answers, update tree and repeat. Do not treat dependent questions as settled before they are answered.
 
 ## Completion gate
@@ -57,7 +63,7 @@ Grilling agent maintains ledger: every question ID has exactly one terminal stat
 
 When no user questions remain, show:
 
-1. **Decision check**: a very concise list of final decisions, one line per ID (`ID — decision`), for user awareness.
+1. **Decision check**: a very concise list of final decisions, one line per ID (`ID — decision; for example, consequence`), for user awareness.
 2. Material risks and assumptions only.
 3. Compact coverage ledger or state counts for every ID.
 
