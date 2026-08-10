@@ -11,7 +11,7 @@ Run only on explicit invocation with one plan path. Treat only that plan as writ
 
 Before any commit or subagent:
 
-1. Resolve absolute repository and plan paths. Require a tracked Markdown file in the active worktree. Report worktree and branch. Stop for detached `HEAD`, conflicts, merge/rebase in progress, or an unsafe path.
+1. Resolve absolute repository and plan paths. Require a tracked Markdown file in the active worktree. Report worktree and branch. Stop for detached `HEAD`, conflicts, an active Git operation, or an unsafe path. Detect an active rebase or `git am` only from the existence of the Git-resolved `rebase-merge` or `rebase-apply` directory; do not infer it from `REBASE_HEAD`, because that file can be stale after a completed rebase. Detect merge, cherry-pick, and revert from the existence of the Git-resolved `MERGE_HEAD`, `CHERRY_PICK_HEAD`, and `REVERT_HEAD` files, and an active sequencer from the existence of the Git-resolved `sequencer` directory.
 2. Snapshot status, including unrelated staged and unstaged changes. Preserve it exactly.
 3. Read repository guidance and relevant code, tests, configuration, history, and recursively linked local or external evidence. Stop at cycles, irrelevant links, generated/vendor content, or inaccessible evidence. Prefer authoritative sources and report access limits. Ask whether uncommitted local reference contents are authoritative before using them.
 4. Verify the runtime can select the most capable model and set `low` and `medium` effort. Stop before committing if not.
