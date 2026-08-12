@@ -56,7 +56,7 @@ Keep one root agent responsible for the worktree, final breakdown, approval, and
 
 Only after approval, publish in this order:
 
-1. Create one open parent issue titled `Implement: <plan-slug>`. Its description must record:
+1. Create one open parent issue titled `Implement: <plan-slug>` with the `umbrella` label. Its description must record:
    - `Repository: <owner>/<repo>`
    - `Implementation plan: <planPath>`
    - `Target worktree: <absolute-target-worktree>`
@@ -66,7 +66,7 @@ Only after approval, publish in this order:
 2. Never embed or repeat the implementation plan's contents in an issue description.
 3. Publish every child issue using `$mattpocock-skills:to-tickets`' tracker rules. It owns child issue content, labels, native blocking links, and verification; do not add, remove, or reinterpret any of those rules here.
 4. Attach each published child to the parent using GitHub's native sub-issue relationship. For GitHub CLI environments without a dedicated sub-issue command, use the GitHub REST API through `gh api` rather than a task-list-only convention. Verify every child reports the parent through GitHub's native relationship.
-5. Update the parent description with a linked child-issue list and its native-parent relationships. Verify the parent and every child remain open and readable.
+5. Update the parent description with a linked child-issue list and its native-parent relationships. Verify the parent retains the `umbrella` label and that the parent and every child remain open and readable.
 
 Do not close issues, push, or create pull requests unless the user separately requests them.
 
