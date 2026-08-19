@@ -1,77 +1,69 @@
 ---
 name: prep-to-implement
-description: "Prepare one approved local implementation plan for agent implementation: create its dedicated worktree and branch, then publish a GitHub parent issue with native child issues. Use only when the user explicitly invokes $prep-to-implement with a local plan path and optional `fine` granularity. Never self-activate: this workflow creates Git worktrees, branches, and GitHub issues."
+description: "Prepare a local implementation plan for agent implementation: create its dedicated worktree and branch, compare several ticket breakdowns, recommend one, then publish approved GitHub parent and native child issues. Use only when the user explicitly invokes $prep-to-implement with a local plan path and optional `fine` granularity. Never self-activate: this workflow creates Git worktrees, branches, and GitHub issues."
 ---
 
 # Prep To Implement
 
-Run only on an explicit invocation in this exact form:
+Run only when explicitly invoked:
 
 ```text
 $prep-to-implement <local-plan-path> [fine]
 ```
 
-`local-plan-path` is required; `fine` is the only optional granularity argument. Do not infer either one. `local-plan-path` must resolve to a regular, non-empty local file. With no granularity argument, use the default `$mattpocock-skills:to-tickets` breakdown unchanged. On any invalid or missing plan path or unsupported granularity, stop before creating a worktree, branch, or GitHub issue.
-
-This workflow creates Git and GitHub state. Never self-activate it.
+`local-plan-path` is required; `fine` is the only option. Resolve it to a regular, readable, non-empty file. Otherwise stop before any Git or GitHub write. This workflow creates worktrees, branches, and issues; never self-activate.
 
 ## Preflight
 
-Before any mutation:
+Before mutation:
 
-1. Resolve the plan path to an absolute path. Require a regular, readable, non-empty file using metadata or byte count; do not read its contents yet.
-2. Find the repository root with `git rev-parse --show-toplevel`. Require a normal Git worktree and a symbolic current branch. Require its status from `git status --porcelain=v1 -z --ignore-submodules=none` to be empty: staged, unstaged, untracked, conflicted, and submodule changes all fail. Reject an active Git operation before any mutation: detect rebase or `git am` from the existence of the Git-resolved `rebase-merge` or `rebase-apply` directory; detect merge, cherry-pick, and revert from `MERGE_HEAD`, `CHERRY_PICK_HEAD`, and `REVERT_HEAD`; and reject an existing Git-resolved `sequencer` directory. Do not use `REBASE_HEAD` as an activity gate: it can be stale after a completed rebase. Require working GitHub authentication via `gh auth status`.
-3. Require the resolved plan path to be inside `repoRoot`. Record its repository-relative path as `planPath`; do not permit `..` traversal or a symlink escape. Require it to exist in `HEAD` and have no staged or unstaged changes relative to `HEAD`, so the target worktree and recorded base commit contain the approved plan.
-4. Derive `plan-slug` from the plan filename: lowercase ASCII hyphen-case, omitting its extension. Require a non-empty slug.
-5. Set `worktreeRoot` to `<repoRoot>/.claude/worktrees/implement-<plan-slug>`, `targetWorktree` to `<worktreeRoot>/target`, and `targetBranch` to exactly `implement/<plan-slug>`.
-6. Fail if the target path already exists, the branch already exists, or `git worktree list --porcelain` already registers either path. Do not reuse an existing worktree or branch.
-7. Determine the GitHub repository identity with `gh repo view --json nameWithOwner`. Stop if it cannot be resolved.
+1. Find `repoRoot` with `git rev-parse --show-toplevel`. Require a normal worktree, symbolic branch, and empty `git status --porcelain=v1 -z --ignore-submodules=none`.
+2. Reject active rebase, `git am`, merge, cherry-pick, revert, or sequencer state. Use Git-resolved `rebase-merge`, `rebase-apply`, `MERGE_HEAD`, `CHERRY_PICK_HEAD`, `REVERT_HEAD`, and `sequencer`; do not gate on stale `REBASE_HEAD`.
+3. Require working `gh auth status`. Require plan inside `repoRoot`, with no symlink escape or `..` traversal, present and unchanged in `HEAD`. Record its repo-relative `planPath`.
+4. Derive non-empty lowercase ASCII hyphen-case `plan-slug` from plan filename. Set `targetBranch` to `implement/<plan-slug>` and `targetWorktree` to `<repoRoot>/.claude/worktrees/implement-<plan-slug>/target`.
+5. Reject an existing target path, branch, or registered worktree. Resolve `<owner>/<repo>` with `gh repo view --json nameWithOwner`.
 
-Report the source branch and base SHA. The target worktree is always created from that exact, clean `HEAD`.
+Report source branch and base SHA. Target always starts at this clean `HEAD`.
 
-## Create implementation space first
+## Create target worktree
 
-Create exactly one worktree and branch before drafting or publishing tickets:
+Create exactly one target before drafting or publishing:
 
 ```bash
 git -C "<repoRoot>" worktree add -b "implement/<plan-slug>" \
   "<repoRoot>/.claude/worktrees/implement-<plan-slug>/target" HEAD
 ```
 
-Verify the registered worktree, its symbolic branch, exact `HEAD`, and an empty `git status --porcelain=v1 -z --ignore-submodules=none`. Re-run the active-operation checks above in the target worktree. All later plan exploration and implementation belong in this target worktree. Never create another implementation worktree in this workflow.
+Verify registered path, symbolic branch, exact `HEAD`, clean status, and no active operation. All later work uses this target. On later failure, preserve it and report its path and branch.
 
-If a later step fails, preserve this newly created implementation space and report its absolute path and branch. Do not silently delete it.
+## Propose breakdowns
 
-## Break down the plan
+Read plan in target; invoke `$mattpocock-skills:to-tickets` with plan text and GitHub tracker. Do not inspect source, tests, configuration, or history, and create no issues while drafting.
 
-From `targetWorktree`, read the implementation plan, then invoke and follow `$mattpocock-skills:to-tickets` with its text. Treat GitHub as the configured tracker. Create no issues during drafting. Do not inspect repository source code, tests, configuration, or history: this workflow decomposes the plan only.
+Produce 2–4 material alternatives, differing in slices, sequence, or dependency boundaries. Each follows `to-tickets` tracer-bullet, dependency, and approval rules. Default granularity preserves its slices. For `fine`, split each ticket until it is smallest independent, verifiable task; keep atomic changes together and recheck dependencies.
 
-Use its tracer-bullet, dependency, and user-approval requirements. With no granularity argument, preserve its resulting breakdown; do not merge, reduce, or otherwise reinterpret its tracer-bullet slices. Show the proposed breakdown and wait for explicit approval before publishing.
+Show each candidate’s tickets, graph, sequence, benefits, and tradeoffs. Compare plan fidelity, verifiable progress, dependency complexity, and agent-context fit. Recommend one, then wait for explicit approval. Publish only approved candidate; user may instead approve another candidate.
 
-For `fine`, audit every proposed ticket after `to-tickets` finishes. Split it repeatedly until every child is the smallest independently completable and verifiable agent task. A fine ticket has one narrow outcome, explicit acceptance criteria, and no unrelated concern. Do not split atomic changes whose correctness requires them together. Recheck all dependency edges after each split. This post-pass is required because large slices risk exceeding an implementation agent's context window.
+One root agent owns worktree, synthesis, approval, and GitHub writes. For oversized plans, delegates may only analyze bounded plan sections read-only; root reconciles their slices and dependencies.
 
-Keep one root agent responsible for the worktree, final breakdown, approval, and every GitHub write. For a plan too large for one context, delegate only independent, read-only plan-section analysis and an optional fine-granularity audit. Give each delegate a bounded plan area and require candidate vertical slices and dependencies. Reconcile their findings in the root before presenting one coherent breakdown. Delegates never inspect source code or create worktrees, branches, issues, or approval prompts.
+## Publish and verify
 
-## Publish GitHub issues
+After approval, create relationship ledger before any issue: stable key per child, expected parent, and directed blocking edges. Ledger is source of truth; issue prose, task lists, and visual page never substitute for native links.
 
-Only after approval, publish in this order:
+1. Create open parent `Implement: <plan-slug>` with `umbrella` label. Description records repository, `planPath`, absolute target worktree, target branch, base SHA, and approved ticket summary; never embed plan contents.
+2. Create children under `to-tickets` rules for content, labels, and acceptance criteria. Record each issue number, URL, and node ID in ledger.
+3. Relationship gate, before parent update or success:
+   - Create every native parent–child edge. Use `gh api` REST when CLI lacks sub-issue command.
+   - Create every native blocking edge. Never use “blocked by” prose as substitute.
+   - Read GitHub state for every child; compare actual parents and blockers with ledger. Command success alone is insufficient.
+   - Retry only missing edges, then read again. Never recreate issues or alter approved graph during repair.
+   - If any edge remains unverified, stop and report failure. Do not update parent description, claim success, or start implementation.
+4. After gate passes, update parent with linked children and native-parent relationships. Verify `umbrella` label; parent and children remain open and readable.
 
-1. Create one open parent issue titled `Implement: <plan-slug>` with the `umbrella` label. Its description must record:
-   - `Repository: <owner>/<repo>`
-   - `Implementation plan: <planPath>`
-   - `Target worktree: <absolute-target-worktree>`
-   - `Target branch: implement/<plan-slug>`
-   - `Base commit: <baseSha>`
-   - the approved ticket summary.
-2. Never embed or repeat the implementation plan's contents in an issue description.
-3. Publish every child issue using `$mattpocock-skills:to-tickets`' tracker rules. It owns child issue content, labels, native blocking links, and verification; do not add, remove, or reinterpret any of those rules here.
-4. Attach each published child to the parent using GitHub's native sub-issue relationship. For GitHub CLI environments without a dedicated sub-issue command, use the GitHub REST API through `gh api` rather than a task-list-only convention. Verify every child reports the parent through GitHub's native relationship.
-5. Update the parent description with a linked child-issue list and its native-parent relationships. Verify the parent retains the `umbrella` label and that the parent and every child remain open and readable.
+Do not close issues, push, or create PRs unless separately requested.
 
-Do not close issues, push, or create pull requests unless the user separately requests them.
+## Recovery and handoff
 
-## Rejection and recovery
+If breakdown rejected or abandoned, ask whether to delete target worktree and branch. Delete only after yes, verifying exact paths first: `git worktree remove <targetWorktree>`, then `git branch -d <targetBranch>`.
 
-If the user rejects or abandons the proposed breakdown, ask whether to delete the target worktree and branch. Delete them only after an explicit yes. First verify exact paths and branch; use `git worktree remove <targetWorktree>` and then `git branch -d implement/<plan-slug>`. If either operation cannot safely complete, stop and report why.
-
-Return the parent number and URL, child numbers and URLs, dependency graph, target worktree, target branch, base SHA, and any unresolved question or failure. On interruption, preserve the implementation space and already-created issues; resume by inspecting actual Git and GitHub state, never by assuming a partial step succeeded.
+Return parent and child numbers/URLs, verified relationship ledger, dependency graph, target worktree/branch, base SHA, and unresolved failure or question. On interruption, preserve worktree and issues; resume from actual Git and GitHub state against ledger.
